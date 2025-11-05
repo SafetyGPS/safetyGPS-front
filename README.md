@@ -42,7 +42,6 @@
 | Frontend | **React**, **TypeScript**, **TailwindCSS** |
 | Package Manager | **pnpm** |
 | Version Control | **GitHub** |
-| AI 분석 | **LLM API (예: OpenAI 기반)** |
 
 ---
 
