@@ -98,4 +98,3 @@ This project is licensed under the **MIT License**.
 ### 📚 참고 자료 (References)
 
 - [한국형사정책연구원 — 전국범죄피해조사 2022~2023](https://kicj.re.kr/board.es?act=view&bid=0001&list_no=14021&mid=a10101000000&tag=)
-- [굿뉴스투데이 — 고령층 범죄자 10년 새 2배 증가 (2024)](https://www.goodnews1.com/news/articleView.html?idxno=451001)
