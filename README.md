@@ -39,7 +39,7 @@
 
 | 분야 | 기술 |
 |------|------|
-| Frontend | **React**, **TypeScript**, **TailwindCSS** |
+| Frontend | **React**, **TypeScript**, **Vanila-extract** |
 | Package Manager | **pnpm** |
 | Version Control | **GitHub** |
 
