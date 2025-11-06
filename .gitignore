@@ -137,3 +137,14 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+node_modules
+dist
+.vite
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+pnpm-lock.yaml
+
