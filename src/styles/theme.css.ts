@@ -1,12 +1,26 @@
-import { createTheme } from '@vanilla-extract/css';
+import { createThemeContract, createTheme } from '@vanilla-extract/css';
 
-export const [themeClass, vars] = createTheme({
+export const vars = createThemeContract({
   color: {
-    bg: '#0b132b',
-    text: '#f6f7fb',
+    bg: null,
+    text: null,
   },
   font: {
-    body: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
-  }
+    body: null,
+  },
 });
+
+// 실제 테마 값 적용 (클래스 생성)
+export const themeClass = createTheme(vars, {
+  color: {
+    bg: '#ffffff',
+    text: '#000000',
+  },
+  font: {
+    body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  },
+});
+
+
+
 
