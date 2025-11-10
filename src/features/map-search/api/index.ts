@@ -93,11 +93,11 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     };
 
     results.push({
-      id: item.id || `${center.lat}-${center.lng}-${index}`,
+      id: item.id ,
       name: dongName,
       fullAddress: title,
       center,
-      bCode: item.id || `${center.lat}-${center.lng}-${index}`, // 폴백 추가
+      bCode: item.id,
     });
   });
 
