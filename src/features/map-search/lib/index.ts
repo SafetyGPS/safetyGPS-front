@@ -63,66 +63,31 @@ export const calculateCenterFromGeometry = (geometry: any): LatLngLiteral | null
 };
 
 /**
- * GeoJSON 데이터를 DongBoundary로 변환
+ * Feature에서 직접 DongBoundary로 변환 (WFS API 전용)
  */
-export const parseGeoJSONToBoundary = (
-  geoJson: any,
+export const parseFeatureToBoundary = (
+  feature: any,
   dongName: string,
   center: LatLngLiteral,
   bCode: string
 ): import('../types').DongBoundary | null => {
   try {
+    const geometry = feature.geometry;
+    if (!geometry) return null;
+    
     let coordinates: number[][] = [];
     
-    // FeatureCollection
-    if (geoJson.type === 'FeatureCollection' && geoJson.features?.length > 0) {
-      const geometry = geoJson.features[0].geometry;
+    if (geometry.type === 'Polygon') {
+      coordinates = geometry.coordinates[0];
+    } else if (geometry.type === 'MultiPolygon') {
+      // MultiPolygon인 경우 가장 큰 폴리곤 선택 (섬이 있는 동 대응)
+      let maxPolygon = geometry.coordinates[0];
+      let maxLength = geometry.coordinates[0][0].length;
       
-      if (geometry.type === 'Polygon') {
-        coordinates = geometry.coordinates[0];
-      } else if (geometry.type === 'MultiPolygon') {
-        // 가장 큰 폴리곤 선택
-        let maxPolygon = geometry.coordinates[0];
-        let maxLength = geometry.coordinates[0][0].length;
-        
-        for (let i = 1; i < geometry.coordinates.length; i++) {
-          if (geometry.coordinates[i][0].length > maxLength) {
-            maxLength = geometry.coordinates[i][0].length;
-            maxPolygon = geometry.coordinates[i];
-          }
-        }
-        coordinates = maxPolygon[0];
-      }
-    }
-    // Feature
-    else if (geoJson.type === 'Feature') {
-      const geometry = geoJson.geometry;
-      if (geometry.type === 'Polygon') {
-        coordinates = geometry.coordinates[0];
-      } else if (geometry.type === 'MultiPolygon') {
-        let maxPolygon = geometry.coordinates[0];
-        let maxLength = geometry.coordinates[0][0].length;
-        for (let i = 1; i < geometry.coordinates.length; i++) {
-          if (geometry.coordinates[i][0].length > maxLength) {
-            maxLength = geometry.coordinates[i][0].length;
-            maxPolygon = geometry.coordinates[i];
-          }
-        }
-        coordinates = maxPolygon[0];
-      }
-    }
-    // Polygon
-    else if (geoJson.type === 'Polygon') {
-      coordinates = geoJson.coordinates[0];
-    }
-    // MultiPolygon
-    else if (geoJson.type === 'MultiPolygon') {
-      let maxPolygon = geoJson.coordinates[0];
-      let maxLength = geoJson.coordinates[0][0].length;
-      for (let i = 1; i < geoJson.coordinates.length; i++) {
-        if (geoJson.coordinates[i][0].length > maxLength) {
-          maxLength = geoJson.coordinates[i][0].length;
-          maxPolygon = geoJson.coordinates[i];
+      for (let i = 1; i < geometry.coordinates.length; i++) {
+        if (geometry.coordinates[i][0].length > maxLength) {
+          maxLength = geometry.coordinates[i][0].length;
+          maxPolygon = geometry.coordinates[i];
         }
       }
       coordinates = maxPolygon[0];

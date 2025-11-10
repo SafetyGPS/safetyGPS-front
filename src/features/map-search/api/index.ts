@@ -1,5 +1,5 @@
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
-import { parseGeoJSONToBoundary } from '../lib';
+import { parseFeatureToBoundary } from '../lib';
 
 /**
  * V-World Search API로 경기도 내 동/읍/면 검색
@@ -177,12 +177,8 @@ export const fetchVWorldBoundary = async (
         return null;
       }
       
-      const singleFeatureCollection = {
-        type: 'FeatureCollection',
-        features: [matchedFeature],
-      };
-      
-      const boundary = parseGeoJSONToBoundary(singleFeatureCollection, dongName, center, bCode);
+      // Feature에서 직접 경계선 생성
+      const boundary = parseFeatureToBoundary(matchedFeature, dongName, center, bCode);
       
       if (boundary) {
         return boundary;
