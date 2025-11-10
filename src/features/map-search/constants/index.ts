@@ -9,5 +9,3 @@ export const OUTER_WRAPPER_STYLE: CSSProperties = {
   zIndex: 1100,
 };
 
-export const DEFAULT_DELTA = { lat: 0.0045, lng: 0.0055 };
-

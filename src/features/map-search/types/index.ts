@@ -3,7 +3,7 @@ export type LatLngLiteral = {
   lng: number;
 };
 
-export type BoundarySource = 'mock' | 'approx' | 'api' | 'vworld';
+export type BoundarySource = 'vworld';
 
 export interface DongBoundary {
   id: string;
@@ -12,7 +12,7 @@ export interface DongBoundary {
   center: LatLngLiteral;
   path: LatLngLiteral[];
   source: BoundarySource;
-  bCode?: string; // 행정구역 코드 (법정동코드)
+  bCode?: string;
 }
 
 export interface DongSearchResult {
@@ -20,8 +20,6 @@ export interface DongSearchResult {
   name: string;
   fullAddress: string;
   center: LatLngLiteral;
-  hasExactBoundary: boolean;
-  bCode?: string; // 행정구역 코드 (WFS API의 emd_cd)
-  geometryUrl?: string; // V-World Search API의 geometry URL (GeoJSON 파일)
+  bCode?: string;
 }
 
