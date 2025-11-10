@@ -78,17 +78,29 @@ export const parseFeatureToBoundary = (
     let coordinates: number[][] = [];
     
     if (geometry.type === 'Polygon') {
+      if (!Array.isArray(geometry.coordinates?.[0])) {
+        return null;
+      }
       coordinates = geometry.coordinates[0];
     } else if (geometry.type === 'MultiPolygon') {
       // MultiPolygon인 경우 가장 큰 폴리곤 선택 (섬이 있는 동 대응)
+      if (!Array.isArray(geometry.coordinates) || geometry.coordinates.length === 0) {
+        return null;
+      }
+      
       let maxPolygon = geometry.coordinates[0];
-      let maxLength = geometry.coordinates[0][0].length;
+      let maxLength = Array.isArray(geometry.coordinates[0]?.[0]) ? geometry.coordinates[0][0].length : 0;
       
       for (let i = 1; i < geometry.coordinates.length; i++) {
-        if (geometry.coordinates[i][0].length > maxLength) {
-          maxLength = geometry.coordinates[i][0].length;
-          maxPolygon = geometry.coordinates[i];
+        const polygon = geometry.coordinates[i];
+        if (Array.isArray(polygon?.[0]) && polygon[0].length > maxLength) {
+          maxLength = polygon[0].length;
+          maxPolygon = polygon;
         }
+      }
+      
+      if (!Array.isArray(maxPolygon?.[0])) {
+        return null;
       }
       coordinates = maxPolygon[0];
     }
