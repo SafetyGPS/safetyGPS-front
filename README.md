@@ -42,6 +42,37 @@
 | Frontend | **React**, **TypeScript**, **Vanila-extract** |
 | Package Manager | **pnpm** |
 | Version Control | **GitHub** |
+| 지도 API | **카카오 지도 API** |
+
+---
+
+## ⚙️ 환경 설정 (Environment Setup)
+
+### 1. 카카오 개발자 키 발급
+1. [카카오 개발자 콘솔](https://developers.kakao.com/)에 접속
+2. 애플리케이션 등록 후 다음 키들을 발급받습니다:
+   - **JavaScript 키**: 지도 SDK 로드용
+   - **REST API 키**: REST API 호출용 (동 검색 등)
+
+### 2. 환경 변수 설정
+프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 아래 내용을 추가하세요:
+
+```env
+# 카카오 지도 API 키 설정
+# JavaScript 키: 지도 SDK 로드용
+VITE_KAKAO_JS_KEY=your_javascript_key_here
+
+# REST API 키: REST API 호출용 (동 검색 등)
+VITE_KAKAO_REST_KEY=your_rest_api_key_here
+```
+
+**⚠️ 중요**: `.env` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.  
+실제 키 값은 위 예시의 `your_javascript_key_here`, `your_rest_api_key_here` 부분을 발급받은 키로 교체하세요.
+
+### 3. 개발 서버 실행
+```bash
+npm run dev
+```
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=Typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
