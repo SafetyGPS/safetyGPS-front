@@ -27,9 +27,16 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
 
   const seen = new Set<string>();
   const results: DongSearchResult[] = [];
+  
+  // 토큰 기반 쿼리 파싱
   const queryLower = query.toLowerCase().trim();
-  const queryHasCity = queryLower.includes('시') || queryLower.includes('군');
-  const queryHasDong = queryLower.includes('동') || queryLower.includes('면') || queryLower.includes('읍');
+  const queryTokens = queryLower.split(/\s+/).filter(Boolean);
+  const queryCities = queryTokens
+    .filter(token => token.endsWith('시') || token.endsWith('군'))
+    .map(token => token.replace(/(?:시|군)$/u, '').trim());
+  const queryDongs = queryTokens
+    .filter(token => token.endsWith('동') || token.endsWith('면') || token.endsWith('읍'))
+    .map(token => token.replace(/(?:동|면|읍)$/u, '').trim());
 
   items.forEach((item: any, index: number) => {
     const title = item.title || '';
@@ -46,29 +53,30 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
       return;
     }
     
-    // 검색 쿼리 매칭
-    if (queryHasCity && queryHasDong) {
-      const cityMatch = queryLower.match(/(.+?)(?:시|군)/);
-      const dongMatch = queryLower.match(/(.+?)(?:동|면|읍)/);
-      
-      if (cityMatch && dongMatch) {
-        const cityName = cityMatch[1].trim();
-        const queryDongName = dongMatch[1].trim();
-        const titleLower = title.toLowerCase();
-        const itemDongName = dongName.toLowerCase().replace(/동|면|읍/g, '').trim();
-        
-        if (!titleLower.includes(cityName) || queryDongName !== itemDongName) {
-          return;
-        }
-      }
-    } else if (queryHasCity && !queryHasDong) {
-      const cityName = queryLower.replace(/시|군/g, '').trim();
-      if (!title.toLowerCase().includes(cityName)) {
+    // Title에서 시/군 추출
+    const titleCityNames = titleParts
+      .map(part => part.toLowerCase())
+      .filter(part => part.endsWith('시') || part.endsWith('군'))
+      .map(part => part.replace(/(?:시|군)$/u, '').trim());
+    const itemDongName = dongName.toLowerCase().replace(/(?:동|면|읍)$/u, '').trim();
+    
+    // 검색 쿼리 매칭 (토큰 기반)
+    if (queryCities.length && queryDongs.length) {
+      // 시/군 + 동 검색 (예: "수원시 조원동")
+      const hasCityMatch = queryCities.some(city => titleCityNames.includes(city));
+      const queryDongName = queryDongs[queryDongs.length - 1];
+      if (!hasCityMatch || queryDongName !== itemDongName) {
         return;
       }
-    } else if (!queryHasCity && queryHasDong) {
-      const queryDongName = queryLower.replace(/동|면|읍/g, '').trim();
-      const itemDongName = dongName.toLowerCase().replace(/동|면|읍/g, '').trim();
+    } else if (queryCities.length) {
+      // 시/군만 검색 (예: "수원시")
+      const hasCityMatch = queryCities.some(city => titleCityNames.includes(city));
+      if (!hasCityMatch) {
+        return;
+      }
+    } else if (queryDongs.length) {
+      // 동만 검색 (예: "조원동")
+      const queryDongName = queryDongs[queryDongs.length - 1];
       if (queryDongName !== itemDongName) {
         return;
       }
@@ -90,7 +98,6 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
       fullAddress: title,
       center,
       bCode: item.id,
-      geometryUrl: item.geometry,
     });
   });
 

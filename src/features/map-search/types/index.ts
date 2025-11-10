@@ -21,6 +21,5 @@ export interface DongSearchResult {
   fullAddress: string;
   center: LatLngLiteral;
   bCode?: string;
-  geometryUrl?: string; // 사용하지 않지만 Search API에서 반환됨
 }
 
