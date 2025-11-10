@@ -1,19 +1,15 @@
 import type { LatLngLiteral } from '../types';
 
 /**
- * 좌표 배열을 간소화합니다 (최대 100개로 제한)
+ * 좌표 배열을 간소화 (최대 500개로 제한)
  */
 export const simplifyCoordinates = (coordinates: number[][], tolerance: number = 0.0001): number[][] => {
   if (coordinates.length <= 500) {
     return coordinates;
   }
   
-  console.log(`   좌표 간소화: ${coordinates.length}개 -> 최대 500개로 제한`);
-  
   const step = Math.ceil(coordinates.length / 100);
-  const simplified: number[][] = [];
-  
-  simplified.push(coordinates[0]);
+  const simplified: number[][] = [coordinates[0]];
   
   for (let i = step; i < coordinates.length - step; i += step) {
     simplified.push(coordinates[i]);
@@ -62,13 +58,12 @@ export const calculateCenterFromGeometry = (geometry: any): LatLngLiteral | null
       lng: sumLng / allCoordinates.length,
     };
   } catch (error) {
-    console.error('중심점 계산 오류:', error);
     return null;
   }
 };
 
 /**
- * GeoJSON 데이터를 DongBoundary로 변환합니다
+ * GeoJSON 데이터를 DongBoundary로 변환
  */
 export const parseGeoJSONToBoundary = (
   geoJson: any,
@@ -77,36 +72,30 @@ export const parseGeoJSONToBoundary = (
   bCode: string
 ): import('../types').DongBoundary | null => {
   try {
-    console.log('   GeoJSON 파싱 시작, 타입:', geoJson?.type);
     let coordinates: number[][] = [];
     
+    // FeatureCollection
     if (geoJson.type === 'FeatureCollection' && geoJson.features?.length > 0) {
-      console.log('   FeatureCollection 형식, features 개수:', geoJson.features.length);
-      const feature = geoJson.features[0];
-      const geometry = feature.geometry;
+      const geometry = geoJson.features[0].geometry;
       
       if (geometry.type === 'Polygon') {
         coordinates = geometry.coordinates[0];
-        console.log('   Polygon - 외곽 경계선 좌표 개수:', coordinates.length);
       } else if (geometry.type === 'MultiPolygon') {
-        console.log('   MultiPolygon - 폴리곤 개수:', geometry.coordinates.length);
-        
+        // 가장 큰 폴리곤 선택
         let maxPolygon = geometry.coordinates[0];
         let maxLength = geometry.coordinates[0][0].length;
         
         for (let i = 1; i < geometry.coordinates.length; i++) {
-          const polygonLength = geometry.coordinates[i][0].length;
-          if (polygonLength > maxLength) {
-            maxLength = polygonLength;
+          if (geometry.coordinates[i][0].length > maxLength) {
+            maxLength = geometry.coordinates[i][0].length;
             maxPolygon = geometry.coordinates[i];
           }
         }
-        
         coordinates = maxPolygon[0];
-        console.log('   가장 큰 폴리곤의 외곽 경계선 좌표 개수:', coordinates.length);
       }
-    } else if (geoJson.type === 'Feature') {
-      console.log('   Feature 형식');
+    }
+    // Feature
+    else if (geoJson.type === 'Feature') {
       const geometry = geoJson.geometry;
       if (geometry.type === 'Polygon') {
         coordinates = geometry.coordinates[0];
@@ -121,11 +110,13 @@ export const parseGeoJSONToBoundary = (
         }
         coordinates = maxPolygon[0];
       }
-    } else if (geoJson.type === 'Polygon') {
-      console.log('   Polygon 형식');
+    }
+    // Polygon
+    else if (geoJson.type === 'Polygon') {
       coordinates = geoJson.coordinates[0];
-    } else if (geoJson.type === 'MultiPolygon') {
-      console.log('   MultiPolygon 형식');
+    }
+    // MultiPolygon
+    else if (geoJson.type === 'MultiPolygon') {
       let maxPolygon = geoJson.coordinates[0];
       let maxLength = geoJson.coordinates[0][0].length;
       for (let i = 1; i < geoJson.coordinates.length; i++) {
@@ -138,36 +129,31 @@ export const parseGeoJSONToBoundary = (
     }
     
     if (coordinates.length === 0) {
-      console.warn('   GeoJSON에서 좌표를 추출할 수 없습니다');
       return null;
     }
     
-    console.log('   추출된 원본 좌표 개수:', coordinates.length);
-    
     const optimizedCoordinates = simplifyCoordinates(coordinates);
-    console.log('   최적화된 좌표 개수:', optimizedCoordinates.length);
     
+    // GeoJSON [lng, lat] → Kakao Map [lat, lng]
     const path: LatLngLiteral[] = optimizedCoordinates.map((coord: number[]) => ({
       lat: coord[1],
       lng: coord[0],
     }));
     
+    // 폴리곤 닫기
     if (path.length > 0 && (path[0].lat !== path[path.length - 1].lat || path[0].lng !== path[path.length - 1].lng)) {
       path.push(path[0]);
     }
     
-    console.log('   GeoJSON 파싱 완료, 최종 경계선 좌표 개수:', path.length);
-    
     return {
-      id: `${bCode}-vworld-search`,
+      id: `${bCode}-vworld`,
       name: dongName,
-      center: center,
-      path: path,
+      center,
+      path,
       source: 'vworld',
-      bCode: bCode,
+      bCode,
     };
   } catch (error) {
-    console.error('   GeoJSON 파싱 오류:', error);
     return null;
   }
 };

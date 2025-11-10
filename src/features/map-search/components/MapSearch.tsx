@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { AimOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Empty, Input, List, Space, Tag, Typography, message } from 'antd';
 import type { DongBoundary, DongSearchResult } from '../types';
@@ -20,12 +20,6 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
 
   const vworldApiKey = (import.meta as any).env?.VITE_VWORLD_API_KEY || '';
   const disabled = !vworldApiKey;
-  
-  useEffect(() => {
-    if ((import.meta as any).env?.MODE === 'development') {
-      console.log('V-World API 키 확인:', vworldApiKey ? `${vworldApiKey.substring(0, 10)}...` : '없음');
-    }
-  }, [vworldApiKey]);
 
   const mergedStyle = useMemo(() => ({ ...OUTER_WRAPPER_STYLE, ...style }), [style]);
 
@@ -51,7 +45,6 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
 
       setResults(searchResults);
     } catch (error: any) {
-      console.error('동 검색 오류:', error);
       const errorMessage = error?.message || '알 수 없는 오류가 발생했습니다.';
       
       if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
