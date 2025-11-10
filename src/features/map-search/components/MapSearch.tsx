@@ -67,7 +67,11 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
         return;
       }
 
-      messageApi.loading({ content: `${item.name} 경계선을 불러오는 중...`, key: 'loading' });
+      messageApi.loading({ 
+        content: `${item.name} 경계선을 불러오는 중... (최대 10회 재시도)`, 
+        key: 'loading',
+        duration: 0,
+      });
       
       const boundary = await fetchVWorldBoundary(
         item.bCode,
@@ -83,7 +87,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
         messageApi.success({ content: `${item.name} 경계선을 표시합니다.`, key: 'loading' });
       } else {
         messageApi.error({ 
-          content: `${item.name} 경계선 데이터를 찾을 수 없습니다.`, 
+          content: `${item.name} 경계선을 불러오지 못했습니다. 다시 시도해주세요.`, 
           key: 'loading',
           duration: 3,
         });

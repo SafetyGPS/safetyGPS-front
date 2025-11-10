@@ -105,7 +105,12 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
 };
 
 /**
- * WFS API로 동 경계선 데이터 가져오기
+ * 지연 함수 (재시도 간격)
+ */
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * WFS API로 동 경계선 데이터 가져오기 (재시도 로직 포함)
  * BBOX 필터로 범위를 제한하고, 동 이름으로 정확히 매칭
  */
 export const fetchVWorldBoundary = async (
@@ -113,57 +118,89 @@ export const fetchVWorldBoundary = async (
   dongName: string,
   fullAddress: string,
   center: LatLngLiteral,
-  apiKey: string
+  apiKey: string,
+  maxRetries: number = 10
 ): Promise<DongBoundary | null> => {
-  try {
-    const bufferSize = 0.05; // 약 5km 반경
-    const bbox = `${center.lat - bufferSize},${center.lng - bufferSize},${center.lat + bufferSize},${center.lng + bufferSize}`;
-    
-    const wfsUrl = `/api/vworld/req/wfs?service=wfs&request=GetFeature&typename=lt_c_ademd&version=2.0.0&srsName=EPSG:4326&output=application/json&key=${apiKey}&domain=http://localhost:8080&bbox=${bbox}&maxfeatures=100`;
-    
-    const response = await fetch(wfsUrl);
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    const wfsData = await response.json();
-    
-    if (wfsData?.type !== 'FeatureCollection' || !wfsData?.features?.length) {
-      return null;
-    }
-    
-    // 동 이름 또는 bCode로 매칭 (점수 기반)
-    let matchedFeature = null;
-    let matchScore = 0;
-    
-    for (const feature of wfsData.features) {
-      const props = feature.properties || {};
-      const featureName = props.emd_kor_nm || props.EMD_KOR_NM || '';
-      const featureEmdCd = props.emd_cd || props.EMD_CD || '';
+  const bufferSize = 0.05; // 약 5km 반경
+  const bbox = `${center.lat - bufferSize},${center.lng - bufferSize},${center.lat + bufferSize},${center.lng + bufferSize}`;
+  const wfsUrl = `/api/vworld/req/wfs?service=wfs&request=GetFeature&typename=lt_c_ademd&version=2.0.0&srsName=EPSG:4326&output=application/json&key=${apiKey}&domain=http://localhost:8080&bbox=${bbox}&maxfeatures=100`;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(wfsUrl);
       
-      let score = 0;
-      if (featureName.includes(dongName)) score += 100;
-      if (featureEmdCd === bCode) score += 200;
-      
-      if (score > matchScore) {
-        matchScore = score;
-        matchedFeature = feature;
+      if (!response.ok) {
+        if (attempt < maxRetries) {
+          await sleep(1000 ); 
+          continue;
+        }
+        return null;
       }
-    }
-    
-    if (!matchedFeature) {
+      
+      const wfsData = await response.json();
+      
+      if (wfsData?.type !== 'FeatureCollection' || !wfsData?.features?.length) {
+        if (attempt < maxRetries) {
+          await sleep(1000 * attempt);
+          continue;
+        }
+        return null;
+      }
+      
+      // 동 이름 또는 bCode로 매칭 (점수 기반)
+      let matchedFeature = null;
+      let matchScore = 0;
+      
+      for (const feature of wfsData.features) {
+        const props = feature.properties || {};
+        const featureName = props.emd_kor_nm || props.EMD_KOR_NM || '';
+        const featureEmdCd = props.emd_cd || props.EMD_CD || '';
+        
+        let score = 0;
+        if (featureName.includes(dongName)) score += 100;
+        if (featureEmdCd === bCode) score += 200;
+        
+        if (score > matchScore) {
+          matchScore = score;
+          matchedFeature = feature;
+        }
+      }
+      
+      if (!matchedFeature) {
+        if (attempt < maxRetries) {
+          await sleep(1000 * attempt);
+          continue;
+        }
+        return null;
+      }
+      
+      const singleFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [matchedFeature],
+      };
+      
+      const boundary = parseGeoJSONToBoundary(singleFeatureCollection, dongName, center, bCode);
+      
+      if (boundary) {
+        return boundary;
+      }
+      
+      // 파싱 실패 시 재시도
+      if (attempt < maxRetries) {
+        await sleep(1000 * attempt);
+        continue;
+      }
+      
+      return null;
+    } catch (error) {
+      if (attempt < maxRetries) {
+        await sleep(1000 * attempt);
+        continue;
+      }
       return null;
     }
-    
-    const singleFeatureCollection = {
-      type: 'FeatureCollection',
-      features: [matchedFeature],
-    };
-    
-    return parseGeoJSONToBoundary(singleFeatureCollection, dongName, center, bCode);
-  } catch (error) {
-    return null;
   }
+  
+  return null;
 };
 
