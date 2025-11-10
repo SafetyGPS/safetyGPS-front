@@ -34,10 +34,59 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
 
   items.forEach((item: any, index: number) => {
     const title = item.title || '';
+    
+    // 경기도만 필터링
+    if (!title.includes('경기도')) {
+      return;
+    }
+    
     const titleParts = title.split(' ');
     const dongName = titleParts[titleParts.length - 1];
     
+    // 검색 쿼리 분석
+    const queryLower = query.toLowerCase().trim();
+    const queryHasCity = queryLower.includes('시') || queryLower.includes('군');
+    const queryHasDong = queryLower.includes('동') || queryLower.includes('면') || queryLower.includes('읍');
+    
+    // 시/군과 동을 함께 검색한 경우 (예: "수원시 보정동")
+    if (queryHasCity && queryHasDong) {
+      const cityMatch = queryLower.match(/(.+?)(?:시|군)/);
+      const dongMatch = queryLower.match(/(.+?)(?:동|면|읍)/);
+      
+      if (cityMatch && dongMatch) {
+        const cityName = cityMatch[1].trim();
+        const queryDongName = dongMatch[1].trim();
+        const titleLower = title.toLowerCase();
+        const itemDongName = dongName.toLowerCase().replace(/동|면|읍/g, '').trim();
+        
+        // 시/군 이름과 동 이름이 모두 일치해야 함
+        if (!titleLower.includes(cityName) || queryDongName !== itemDongName) {
+          return;
+        }
+      }
+    }
+    // 시/군만 검색한 경우 (예: "수원시"): 해당 시/군의 동만 표시
+    else if (queryHasCity && !queryHasDong) {
+      const cityName = queryLower.replace(/시|군/g, '').trim();
+      const titleLower = title.toLowerCase();
+      // 제목에 해당 시/군 이름이 포함되어야 함
+      if (!titleLower.includes(cityName)) {
+        return;
+      }
+    }
+    // 동 이름만 검색한 경우 (예: "보정동"): 동 이름이 정확히 일치하는 것만 표시
+    else if (!queryHasCity && queryHasDong) {
+      const queryDongName = queryLower.replace(/동|면|읍/g, '').trim();
+      const itemDongName = dongName.toLowerCase().replace(/동|면|읍/g, '').trim();
+      // 동 이름이 정확히 일치해야 함
+      if (queryDongName !== itemDongName) {
+        return;
+      }
+    }
+    
+    // 동/면/읍으로 끝나지 않는 경우 필터링 (예외: 시/군 바로 다음에 오는 경우)
     if (titleParts.length > 1 && (titleParts[titleParts.length - 2].endsWith('시') || titleParts[titleParts.length - 2].endsWith('군'))) {
+      // "수원시 원동" 같은 경우 허용
     } else if (!dongName.endsWith('동') && !dongName.endsWith('면') && !dongName.endsWith('읍')) {
       return;
     }
@@ -81,7 +130,8 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
 };
 
 /**
- * V-World API에서 경계선 가져오기
+ * V-World Search API 2.0의 geometry URL에서 경계선 가져오기
+ * WFS API는 사용하지 않고 Search API 2.0만 사용합니다.
  */
 export const fetchVWorldBoundary = async (
   bCode: string,
@@ -91,372 +141,292 @@ export const fetchVWorldBoundary = async (
   geometryUrl?: string,
   apiKey?: string
 ): Promise<DongBoundary | null> => {
-  console.log('=== V-World API 경계선 가져오기 시작 ===');
+  console.log('=== V-World Search API 2.0 경계선 가져오기 시작 ===');
   console.log('입력 파라미터:', { bCode, dongName, fullAddress, center, geometryUrl });
   
-  const vworldApiKey = apiKey || (import.meta as any).env?.VITE_VWORLD_API_KEY || '';
-  const domain = window.location.hostname || 'localhost';
-  
-  if (!vworldApiKey) {
-    console.warn('❌ V-World API 키가 설정되지 않았습니다.');
+  if (!geometryUrl) {
+    console.warn('❌ geometryUrl이 없습니다. Search API 2.0만 사용하므로 경계선을 가져올 수 없습니다.');
+    console.log('=== V-World Search API 2.0 경계선 가져오기 실패 ===');
     return null;
   }
 
   try {
-    // 방법 0: Search API의 geometry URL 직접 사용
-    if (geometryUrl) {
-      console.log('   방법 0: Search API의 geometry URL 직접 사용');
-      console.log('   원본 geometry URL:', geometryUrl);
-      
+    console.log('   Search API 2.0의 geometry URL 직접 사용');
+    console.log('   원본 geometry URL:', geometryUrl);
+    
+    // API 키를 URL에 추가
+    let urlWithKey = geometryUrl;
+    if (apiKey) {
+      const separator = geometryUrl.includes('?') ? '&' : '?';
+      urlWithKey = `${geometryUrl}${separator}key=${apiKey}`;
+      console.log('   API 키 추가된 URL:', urlWithKey);
+    }
+    
+    // XML 에러 메시지 파싱 헬퍼 함수
+    const parseXMLError = (xmlText: string): string => {
       try {
-        let geoUrl = geometryUrl;
-        if (geoUrl.startsWith('http://map.vworld.kr')) {
-          geoUrl = geoUrl.replace('http://map.vworld.kr', '/api/vworld-map');
-        } else if (geoUrl.startsWith('https://api.vworld.kr')) {
-          geoUrl = geoUrl.replace('https://api.vworld.kr', '/api/vworld');
-        }
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+        const codeElement = xmlDoc.querySelector('code');
+        const messageElement = xmlDoc.querySelector('message');
+        const code = codeElement?.textContent || '';
+        const message = messageElement?.textContent || '';
+        return `코드: ${code}, 메시지: ${message}`;
+      } catch {
+        return xmlText.substring(0, 200);
+      }
+    };
+    
+    // GeoJSON 데이터 가져오기 헬퍼 함수
+    const fetchGeoJSON = async (url: string, isProxy: boolean = false): Promise<any | null> => {
+      try {
+        console.log(`   ${isProxy ? '프록시' : '직접'} URL 요청:`, url);
         
-        console.log('   프록시 URL:', geoUrl);
-        
-        const geoResponse = await fetch(geoUrl, {
+        const response = await fetch(url, {
+          method: 'GET',
           headers: {
-            'Accept': 'application/json',
+            'Accept': 'application/json, application/geo+json, */*',
           },
+          mode: isProxy ? 'same-origin' : 'cors',
+          credentials: 'omit',
         });
         
-        console.log('   응답 상태:', geoResponse.status, geoResponse.ok);
-        console.log('   Content-Type:', geoResponse.headers.get('content-type'));
+        console.log(`   ${isProxy ? '프록시' : '직접'} URL 응답 상태:`, response.status, response.ok);
+        console.log(`   ${isProxy ? '프록시' : '직접'} URL Content-Type:`, response.headers.get('content-type'));
         
-        if (geoResponse.ok) {
-          const responseText = await geoResponse.text();
-          const contentType = geoResponse.headers.get('content-type') || '';
-          
-          console.log('   응답 본문 처음 200자:', responseText.substring(0, 200));
-          
-          if (contentType.includes('xml') || responseText.trim().startsWith('<?xml')) {
-            console.warn('   ❌ geometry URL이 XML 형식으로 응답했습니다.');
-            console.warn('   프록시를 통한 접근 실패, 직접 URL로 재시도');
-            
-            try {
-              console.log('   직접 URL로 재시도:', geometryUrl);
-              const directResponse = await fetch(geometryUrl, {
-                headers: {
-                  'Accept': 'application/json',
-                },
-              });
-              
-              if (directResponse.ok) {
-                const directText = await directResponse.text();
-                if (!directText.trim().startsWith('<?xml')) {
-                  try {
-                    const geoData = JSON.parse(directText);
-                    const boundary = parseGeoJSONToBoundary(geoData, dongName, center, bCode);
-                    if (boundary) {
-                      console.log('✅ 직접 URL로 GeoJSON 다운로드 성공!');
-                      console.log('=== V-World API 경계선 가져오기 완료 ===');
-                      return boundary;
-                    }
-                  } catch (parseError) {
-                    console.warn('   직접 URL JSON 파싱 실패:', parseError);
-                  }
-                }
-              }
-            } catch (directError) {
-              console.warn('   직접 URL 시도도 실패:', directError);
-            }
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.warn(`   ${isProxy ? '프록시' : '직접'} URL 요청 실패:`, response.status);
+          if (errorText.trim().startsWith('<?xml')) {
+            const errorMsg = parseXMLError(errorText);
+            console.warn('   XML 에러:', errorMsg);
           } else {
-            try {
-              const geoData = JSON.parse(responseText);
-              console.log('   GeoJSON 다운로드 성공');
+            console.warn('   에러 내용:', errorText.substring(0, 500));
+          }
+          return null;
+        }
+        
+        const responseText = await response.text();
+        const contentType = response.headers.get('content-type') || '';
+        
+        console.log(`   ${isProxy ? '프록시' : '직접'} URL 응답 본문 처음 500자:`, responseText.substring(0, 500));
+        
+        // XML 응답 체크
+        if (contentType.includes('xml') || responseText.trim().startsWith('<?xml')) {
+          const errorMsg = parseXMLError(responseText);
+          console.warn(`   ❌ ${isProxy ? '프록시' : '직접'} URL이 XML 형식으로 응답:`, errorMsg);
+          return null;
+        }
+        
+        // JSON 파싱
+        try {
+          const geoData = JSON.parse(responseText);
+          console.log(`   ✅ ${isProxy ? '프록시' : '직접'} URL로 GeoJSON 다운로드 성공!`);
+          console.log('   GeoJSON 타입:', geoData?.type);
+          console.log('   Features 개수:', geoData?.features?.length || 0);
+          
+          if (geoData?.type === 'FeatureCollection' && geoData?.features?.length > 0) {
+            return geoData;
+          } else {
+            console.warn('   GeoJSON 형식이 올바르지 않습니다.');
+            return null;
+          }
+        } catch (parseError) {
+          console.error(`   ${isProxy ? '프록시' : '직접'} URL JSON 파싱 실패:`, parseError);
+          console.error('   파싱 실패한 텍스트:', responseText.substring(0, 1000));
+          return null;
+        }
+      } catch (error: any) {
+        console.error(`   ${isProxy ? '프록시' : '직접'} URL 시도 중 오류 발생:`);
+        console.error('   에러 타입:', error?.constructor?.name);
+        console.error('   에러 메시지:', error?.message);
+        console.error('   에러 이름:', error?.name);
+        
+        if (!isProxy && (error?.message?.includes('CORS') || error?.message?.includes('Failed to fetch') || error?.name === 'TypeError')) {
+          console.warn('   ⚠️ CORS 오류로 판단');
+        }
+        
+        return null;
+      }
+    };
+    
+    // 방법 1: 직접 URL로 먼저 시도 (API 키 없이, geometry URL은 퍼블릭 파일)
+    console.log('   방법 1: 직접 URL로 시도 (API 키 없이)');
+    const directGeoData = await fetchGeoJSON(geometryUrl, false);
+    if (directGeoData) {
+      const boundary = parseGeoJSONToBoundary(directGeoData, dongName, center, bCode);
+      if (boundary) {
+        console.log('✅ 직접 URL로 경계선 데이터 가져오기 성공!');
+        console.log('=== V-World Search API 2.0 경계선 가져오기 완료 ===');
+        return boundary;
+      }
+    }
+    
+    // 방법 1-2: API 키를 포함해서 재시도
+    console.log('   방법 1-2: 직접 URL로 시도 (API 키 포함)');
+    const directGeoDataWithKey = await fetchGeoJSON(urlWithKey, false);
+    if (directGeoDataWithKey) {
+      const boundary = parseGeoJSONToBoundary(directGeoDataWithKey, dongName, center, bCode);
+      if (boundary) {
+        console.log('✅ 직접 URL (API 키 포함)로 경계선 데이터 가져오기 성공!');
+        console.log('=== V-World Search API 2.0 경계선 가져오기 완료 ===');
+        return boundary;
+      }
+    }
+    
+    // 방법 2: 프록시를 통해 접근
+    console.log('   방법 2: 프록시를 통한 접근 시도');
+    let geoUrl = urlWithKey; // API 키가 포함된 URL 사용
+    if (geoUrl.startsWith('http://map.vworld.kr')) {
+      geoUrl = geoUrl.replace('http://map.vworld.kr', '/api/vworld-map');
+    } else if (geoUrl.startsWith('https://api.vworld.kr')) {
+      geoUrl = geoUrl.replace('https://api.vworld.kr', '/api/vworld');
+    }
+    
+    console.log('   프록시 URL 변환:', {
+      원본: urlWithKey,
+      변환됨: geoUrl,
+    });
+    
+    const proxyGeoData = await fetchGeoJSON(geoUrl, true);
+    if (proxyGeoData) {
+      const boundary = parseGeoJSONToBoundary(proxyGeoData, dongName, center, bCode);
+      if (boundary) {
+        console.log('✅ 프록시로 경계선 데이터 가져오기 성공!');
+        console.log('=== V-World Search API 2.0 경계선 가져오기 완료 ===');
+        return boundary;
+      }
+    }
+    
+    // 방법 3: WFS API를 대안으로 시도 (더 정확한 필터링)
+    console.log('   방법 3: WFS API를 대안으로 시도 (정확한 필터링)');
+    if (apiKey && bCode) {
+      console.log('   WFS API 파라미터:', { bCode, dongName, fullAddress });
+      try {
+        // CQL 필터를 사용하지 않고, BBOX로 지역 제한 후 클라이언트에서 필터링
+        // 수원시 장안구 연무동 중심 좌표를 기준으로 범위 설정
+        const bufferSize = 0.05; // 약 5km 반경
+        const minLat = center.lat - bufferSize;
+        const maxLat = center.lat + bufferSize;
+        const minLng = center.lng - bufferSize;
+        const maxLng = center.lng + bufferSize;
+        
+        // BBOX: ymin,xmin,ymax,xmax (EPSG:4326)
+        const bbox = `${minLat},${minLng},${maxLat},${maxLng}`;
+        
+        const wfsUrl = `/api/vworld/req/wfs?service=wfs&request=GetFeature&typename=lt_c_ademd&version=2.0.0&srsName=EPSG:4326&output=application/json&key=${apiKey}&domain=http://localhost:8080&bbox=${bbox}&maxfeatures=100`;
+        console.log('   WFS API 요청 (BBOX 필터):', wfsUrl);
+        console.log('   검색 범위:', { center, bbox });
+        
+        const wfsResponse = await fetch(wfsUrl);
+        console.log('   WFS API 응답 상태:', wfsResponse.status, wfsResponse.ok);
+        
+        if (wfsResponse.ok) {
+          const wfsData = await wfsResponse.json();
+          console.log('   WFS API 응답 데이터 타입:', wfsData?.type);
+          console.log('   WFS API Features 개수:', wfsData?.features?.length || 0);
+          
+          if (wfsData?.type === 'FeatureCollection' && wfsData?.features?.length > 0) {
+            // feature들의 속성 확인
+            console.log('   첫 번째 feature 속성:', wfsData.features[0]?.properties);
+            console.log('   총 feature 개수:', wfsData.features.length);
+            console.log('   매칭 기준:', { dongName, fullAddress, bCode });
+            
+            // 동 이름으로 매칭 시도
+            let matchedFeature = null;
+            let matchScore = 0;
+            
+            for (let i = 0; i < Math.min(wfsData.features.length, 50); i++) {
+              const feature = wfsData.features[i];
+              const props = feature.properties || {};
               
-              const boundary = parseGeoJSONToBoundary(geoData, dongName, center, bCode);
+              // 가능한 모든 필드명 확인
+              const featureName = props.emd_kor_nm || props.EMD_KOR_NM || props.emd_nm || props.EMD_NM || props.name || props.NAME || '';
+              const featureFullName = props.full_nm || props.FULL_NM || props.adm_nm || props.ADM_NM || '';
+              const featureEmdCd = props.emd_cd || props.EMD_CD || props.emdCd || '';
+              
+              if (i < 3) {
+                console.log(`   Feature ${i + 1}:`, {
+                  name: featureName,
+                  fullName: featureFullName,
+                  emd_cd: featureEmdCd,
+                  allProps: Object.keys(props),
+                });
+              }
+              
+              let currentScore = 0;
+              
+              // 1순위: 동 이름이 정확히 일치
+              if (featureName && featureName.includes(dongName)) {
+                currentScore += 100;
+                console.log(`   ✅ Feature ${i + 1}: 동 이름 일치 (${featureName} === ${dongName})`);
+              }
+              
+              // 2순위: 전체 주소에 검색 주소가 포함
+              if (featureFullName && fullAddress.includes(featureName)) {
+                currentScore += 50;
+                console.log(`   ✅ Feature ${i + 1}: 주소 포함 (${featureFullName})`);
+              }
+              
+              // 3순위: bCode 일치 (혹시 몰라서)
+              if (featureEmdCd === bCode) {
+                currentScore += 200;
+                console.log(`   ✅ Feature ${i + 1}: bCode 일치 (${featureEmdCd})`);
+              }
+              
+              if (currentScore > matchScore) {
+                matchScore = currentScore;
+                matchedFeature = feature;
+                console.log(`   🎯 현재 최고 점수 feature: ${i + 1}, 점수: ${currentScore}`);
+              }
+            }
+            
+            if (matchedFeature && matchScore > 0) {
+              console.log('   ✅ 매칭된 feature 발견! 최종 점수:', matchScore);
+              console.log('   매칭된 feature 속성:', matchedFeature.properties);
+              
+              // 매칭된 feature만 사용
+              const singleFeatureCollection = {
+                type: 'FeatureCollection',
+                features: [matchedFeature],
+              };
+              
+              const boundary = parseGeoJSONToBoundary(singleFeatureCollection, dongName, center, bCode);
               if (boundary) {
-                console.log('✅ Search API의 geometry URL에서 경계선 데이터 가져오기 성공!');
-                console.log('=== V-World API 경계선 가져오기 완료 ===');
+                console.log('✅ WFS API로 경계선 데이터 가져오기 성공!');
+                console.log('=== V-World Search API 2.0 경계선 가져오기 완료 (WFS 대안 사용) ===');
                 return boundary;
               }
-            } catch (parseError) {
-              console.warn('   JSON 파싱 실패:', parseError);
-              console.warn('   응답 본문:', responseText.substring(0, 500));
+            } else {
+              console.warn('   ⚠️ 일치하는 feature를 찾을 수 없습니다.');
+              console.warn('   처음 10개 feature 이름:', wfsData.features.slice(0, 10).map((f: any, idx: number) => {
+                const props = f.properties || {};
+                return `${idx + 1}. ${props.emd_kor_nm || props.EMD_KOR_NM || props.emd_nm || props.name || '이름없음'}`;
+              }));
             }
           }
         } else {
-          const errorText = await geoResponse.text();
-          console.warn('   geometry URL 다운로드 실패:', geoResponse.status);
-          console.warn('   에러 내용:', errorText.substring(0, 200));
+          console.warn('   WFS API 요청 실패:', wfsResponse.status);
+          const errorText = await wfsResponse.text();
+          console.warn('   에러 내용:', errorText.substring(0, 500));
         }
-      } catch (geoError) {
-        console.warn('   geometry URL 다운로드 오류:', geoError);
-      }
-    } else {
-      console.log('   방법 0: geometryUrl이 없어 건너뜀');
-    }
-
-    // 방법 1: emd_cd로 필터링 시도
-    console.log('   Search API id (bCode):', bCode);
-    console.log('   동 이름:', dongName);
-    
-    let cqlFilter = `emd_cd='${bCode}'`;
-    const wfsUrl = `/api/vworld/req/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=lt_c_ademd&OUTPUTFORMAT=application/json&SRSNAME=EPSG:4326&KEY=${vworldApiKey}&DOMAIN=${domain}&CQL_FILTER=${encodeURIComponent(cqlFilter)}`;
-    
-    console.log('   WFS URL (emd_cd로 필터링):', wfsUrl);
-    
-    const wfsResponse = await fetch(wfsUrl, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    
-    if (wfsResponse.ok) {
-      const responseText = await wfsResponse.text();
-      const contentType = wfsResponse.headers.get('content-type') || '';
-      
-      if (!contentType.includes('xml') && !responseText.trim().startsWith('<?xml')) {
-        try {
-          const wfsData = JSON.parse(responseText);
-          console.log('   WFS 응답 피처 개수:', wfsData?.features?.length || 0);
-          
-          if (wfsData?.features && wfsData.features.length > 0) {
-            let matchedFeature = wfsData.features.find((feature: any) => {
-              const featureEmdCd = String(feature.properties?.emd_cd || '');
-              return featureEmdCd === bCode;
-            });
-            
-            if (matchedFeature) {
-              console.log('   ✅ emd_cd로 정확히 매칭된 피처 찾음');
-              
-              const geometry = matchedFeature?.geometry;
-              if (geometry && geometry.coordinates) {
-                const matchedName = matchedFeature.properties?.emd_kor_nm || '';
-                const matchedEmdCd = matchedFeature.properties?.emd_cd || '';
-                console.log('   선택된 피처:', {
-                  name: matchedName,
-                  emd_cd: matchedEmdCd,
-                  요청한동: dongName,
-                  요청한id: bCode,
-                });
-                
-                const boundary = parseGeoJSONToBoundary(
-                  { type: 'Feature', geometry: geometry },
-                  dongName,
-                  center,
-                  bCode
-                );
-                
-                if (boundary) {
-                  console.log('✅ WFS API에서 경계선 데이터 가져오기 성공!');
-                  console.log('=== V-World API 경계선 가져오기 완료 ===');
-                  return boundary;
-                }
-              }
-            } else {
-              console.warn('   emd_cd로 매칭 실패, 동 이름으로 재시도');
-            }
-          }
-        } catch (parseError) {
-          console.warn('   JSON 파싱 실패, 동 이름으로 재시도');
-        }
-      } else {
-        console.warn('   XML 응답, 동 이름으로 재시도');
-      }
-    } else {
-      console.warn('   WFS API 요청 실패, 동 이름으로 재시도');
-    }
-    
-    // 방법 2: 좌표 기반 BBOX 필터링 시도
-    console.log('   방법 2: 좌표 기반 BBOX 필터링 시도');
-    const { lng, lat } = center;
-    
-    const bboxSize = 0.01;
-    const minLng = lng - bboxSize;
-    const maxLng = lng + bboxSize;
-    const minLat = lat - bboxSize;
-    const maxLat = lat + bboxSize;
-    
-    const bbox = `${minLng},${minLat},${maxLng},${maxLat},EPSG:4326`;
-    const wfsUrl2 = `/api/vworld/req/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=lt_c_ademd&OUTPUTFORMAT=application/json&SRSNAME=EPSG:4326&KEY=${vworldApiKey}&DOMAIN=${domain}&BBOX=${encodeURIComponent(bbox)}&MAXFEATURES=50`;
-    
-    console.log('   WFS URL (BBOX로 필터링):', wfsUrl2);
-    console.log('   BBOX:', bbox);
-    
-    const wfsResponse2 = await fetch(wfsUrl2, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    
-    if (wfsResponse2.ok) {
-      const responseText2 = await wfsResponse2.text();
-      const contentType2 = wfsResponse2.headers.get('content-type') || '';
-      
-      if (!contentType2.includes('xml') && !responseText2.trim().startsWith('<?xml')) {
-        try {
-          const wfsData2 = JSON.parse(responseText2);
-          console.log('   BBOX 응답 피처 개수:', wfsData2?.features?.length || 0);
-          
-          if (wfsData2?.features && wfsData2.features.length > 0) {
-            let matchedFeature = wfsData2.features.find((feature: any) => {
-              const featureEmdCd = String(feature.properties?.emd_cd || '');
-              return featureEmdCd === bCode;
-            });
-            
-            if (matchedFeature) {
-              console.log('   ✅ BBOX에서 emd_cd로 정확히 매칭된 피처 찾음');
-              
-              const geometry = matchedFeature?.geometry;
-              if (geometry && geometry.coordinates) {
-                const boundary = parseGeoJSONToBoundary(
-                  { type: 'Feature', geometry: geometry },
-                  dongName,
-                  center,
-                  bCode
-                );
-                
-                if (boundary) {
-                  console.log('✅ WFS API에서 경계선 데이터 가져오기 성공! (BBOX)');
-                  console.log('=== V-World API 경계선 가져오기 완료 ===');
-                  return boundary;
-                }
-              }
-            } else {
-              matchedFeature = wfsData2.features.find((feature: any) => {
-                const featureName = feature.properties?.emd_kor_nm || '';
-                return featureName === dongName;
-              });
-              
-              if (matchedFeature) {
-                console.log('   ✅ BBOX에서 동 이름으로 정확히 매칭된 피처 찾음');
-                
-                const geometry = matchedFeature?.geometry;
-                if (geometry && geometry.coordinates) {
-                  const boundary = parseGeoJSONToBoundary(
-                    { type: 'Feature', geometry: geometry },
-                    dongName,
-                    center,
-                    bCode
-                  );
-                  
-                  if (boundary) {
-                    console.log('✅ WFS API에서 경계선 데이터 가져오기 성공! (BBOX)');
-                    console.log('=== V-World API 경계선 가져오기 완료 ===');
-                    return boundary;
-                  }
-                }
-              } else {
-                console.warn('   BBOX에서 매칭 실패, 동 이름으로 재시도');
-              }
-            }
-          }
-        } catch (parseError) {
-          console.warn('   BBOX JSON 파싱 실패, 동 이름으로 재시도');
-        }
-      } else {
-        console.warn('   BBOX XML 응답, 동 이름으로 재시도');
-      }
-    } else {
-      console.warn('   BBOX 요청 실패, 동 이름으로 재시도');
-    }
-    
-    // 방법 3: 동 이름과 시군구 이름으로 필터링
-    console.log('   방법 3: 동 이름으로 필터링 시도');
-    const addressParts = fullAddress.split(' ');
-    const sigunguName = addressParts.length > 1 ? addressParts[addressParts.length - 2] : '';
-    
-    let cqlFilter3 = `emd_kor_nm='${dongName}'`;
-    if (sigunguName) {
-      cqlFilter3 += ` AND sig_kor_nm='${sigunguName}'`;
-    }
-
-    const wfsUrl3 = `/api/vworld/req/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=lt_c_ademd&OUTPUTFORMAT=application/json&SRSNAME=EPSG:4326&KEY=${vworldApiKey}&DOMAIN=${domain}&CQL_FILTER=${encodeURIComponent(cqlFilter3)}`;
-    
-    console.log('   WFS URL (동 이름으로 필터링):', wfsUrl3);
-    
-    const wfsResponse3 = await fetch(wfsUrl3, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    
-    if (!wfsResponse3.ok) {
-      console.error('❌ V-World WFS API 요청 실패');
-      return null;
-    }
-
-    const responseText3 = await wfsResponse3.text();
-    const contentType3 = wfsResponse3.headers.get('content-type') || '';
-    
-    if (contentType3.includes('xml') || responseText3.trim().startsWith('<?xml')) {
-      console.error('❌ WFS API가 XML 형식으로 응답했습니다.');
-      return null;
-    }
-
-    let wfsData3;
-    try {
-      wfsData3 = JSON.parse(responseText3);
-    } catch (parseError) {
-      console.error('❌ JSON 파싱 실패');
-      return null;
-    }
-    
-    console.log('   WFS 응답 피처 개수:', wfsData3?.features?.length || 0);
-    
-    if (wfsData3?.features && wfsData3.features.length > 0) {
-      let matchedFeature = wfsData3.features.find((feature: any) => {
-        const featureName = feature.properties?.emd_kor_nm || '';
-        return featureName === dongName;
-      });
-      
-      if (matchedFeature) {
-        console.log('   ✅ 동 이름으로 정확히 매칭된 피처 찾음');
-      } else {
-        matchedFeature = wfsData3.features.find((feature: any) => {
-          const featureEmdCd = String(feature.properties?.emd_cd || '');
-          return featureEmdCd === bCode;
-        });
-        
-        if (matchedFeature) {
-          console.log('   ✅ emd_cd가 id와 일치하는 피처 찾음');
-        } else {
-          console.warn('   ⚠️ 정확히 매칭되는 피처를 찾을 수 없어 첫 번째 피처 사용');
-          matchedFeature = wfsData3.features[0];
-        }
-      }
-      
-      const geometry = matchedFeature?.geometry;
-      if (geometry && geometry.coordinates) {
-        const matchedName = matchedFeature.properties?.emd_kor_nm || '';
-        const matchedEmdCd = matchedFeature.properties?.emd_cd || '';
-        console.log('   선택된 피처:', {
-          name: matchedName,
-          emd_cd: matchedEmdCd,
-          요청한동: dongName,
-          요청한id: bCode,
-        });
-        
-        const boundary = parseGeoJSONToBoundary(
-          { type: 'Feature', geometry: geometry },
-          dongName,
-          center,
-          bCode
-        );
-        
-        if (boundary) {
-          console.log('✅ WFS API에서 경계선 데이터 가져오기 성공!');
-          console.log('=== V-World API 경계선 가져오기 완료 ===');
-          return boundary;
-        }
+      } catch (wfsError) {
+        console.error('   WFS API 호출 중 오류:', wfsError);
       }
     }
     
-    console.log('=== V-World API 경계선 가져오기 실패 ===');
+    console.log('❌ 모든 방법 실패: geometry URL을 가져올 수 없습니다.');
+    console.log('   원인: V-World 서버가 CORS를 차단하고, 프록시도 404를 반환합니다.');
+    console.log('   해결책: 백엔드 서버를 구축하거나 V-World API 정책 변경이 필요합니다.');
+    console.log('=== V-World Search API 2.0 경계선 가져오기 실패 ===');
     return null;
   } catch (error) {
-    console.error('❌ V-World API 경계선 가져오기 예외 발생');
+    console.error('❌ V-World Search API 2.0 경계선 가져오기 예외 발생');
     console.error('   에러 타입:', error?.constructor?.name);
     console.error('   에러 메시지:', error instanceof Error ? error.message : String(error));
     console.error('   에러 스택:', error instanceof Error ? error.stack : '없음');
     console.error('   전체 에러 객체:', error);
-    console.log('=== V-World API 경계선 가져오기 실패 ===');
+    console.log('=== V-World Search API 2.0 경계선 가져오기 실패 ===');
     return null;
   }
 };

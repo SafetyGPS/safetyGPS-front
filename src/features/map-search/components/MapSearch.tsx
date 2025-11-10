@@ -53,7 +53,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
       }));
 
       if (!resultsWithMock.length) {
-        messageApi.warning('동 단위 검색 결과가 없습니다. 동 이름으로 검색해 주세요. (예: 원동, 보정동)');
+        messageApi.warning('경기도 내 검색 결과가 없습니다. 동 이름(예: 보정동) 또는 시 이름(예: 수원시)으로 검색해 주세요.');
       }
 
       setResults(resultsWithMock);
@@ -181,7 +181,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
       >
         <Space.Compact style={{ width: '100%' }}>
           <Input
-            placeholder="동 이름 검색 (예: 보정동)"
+            placeholder="경기도 동 검색 (예: 보정동, 수원시)"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onPressEnter={handleSearch}

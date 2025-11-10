@@ -26,6 +26,21 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/vworld-map/, ''),
         secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('프록시 오류:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('프록시 요청:', req.method, req.url, '→', proxyReq.path);
+            // 헤더 설정
+            proxyReq.setHeader('Accept', 'application/json, application/geo+json, */*');
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('프록시 응답:', proxyRes.statusCode, req.url);
+            console.log('프록시 응답 헤더:', proxyRes.headers);
+          });
+        },
       },
     },
   },
