@@ -2,9 +2,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 import { AimOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Empty, Input, List, Space, Tag, Typography, message } from 'antd';
 import type { DongBoundary, DongSearchResult } from '../types';
-import { DONG_POLYGON_BY_NAME } from '../mock';
 import { searchDong, fetchVWorldBoundary } from '../api';
-import { buildApproxBoundary } from '../lib';
 import { OUTER_WRAPPER_STYLE } from '../constants';
 
 interface MapSearchProps {
@@ -46,17 +44,12 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
 
     try {
       const searchResults = await searchDong(query, vworldApiKey);
-      
-      const resultsWithMock = searchResults.map(result => ({
-        ...result,
-        hasExactBoundary: Boolean(DONG_POLYGON_BY_NAME[result.name]),
-      }));
 
-      if (!resultsWithMock.length) {
+      if (!searchResults.length) {
         messageApi.warning('경기도 내 검색 결과가 없습니다. 동 이름(예: 보정동) 또는 시 이름(예: 수원시)으로 검색해 주세요.');
       }
 
-      setResults(resultsWithMock);
+      setResults(searchResults);
     } catch (error: any) {
       console.error('동 검색 오류:', error);
       const errorMessage = error?.message || '알 수 없는 오류가 발생했습니다.';
@@ -76,81 +69,34 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
 
   const handleSelect = useCallback(
     async (item: DongSearchResult) => {
-      console.log('=== 동 선택 처리 시작 ===');
-      console.log('선택된 동 정보:', {
-        name: item.name,
-        fullAddress: item.fullAddress,
-        center: item.center,
-        bCode: item.bCode,
-        hasExactBoundary: item.hasExactBoundary,
-        geometryUrl: item.geometryUrl || '없음',
-      });
-
-      console.log('2단계: 실제 경계선 데이터 가져오기 시도');
-      console.log('   bCode 존재:', !!item.bCode);
-      console.log('   geometryUrl 존재:', !!item.geometryUrl);
-      if (item.geometryUrl) {
-        console.log('   geometryUrl 값:', item.geometryUrl);
-      }
-      if (item.bCode) {
-        console.log('   bCode 값:', item.bCode);
-        messageApi.loading({ content: `${item.name} 경계선을 불러오는 중...`, key: 'loading' });
-        
-        console.log('   V-World API 호출 시작...');
-        console.log('   전달 파라미터:', {
-          bCode: item.bCode,
-          name: item.name,
-          fullAddress: item.fullAddress,
-          center: item.center,
-          geometryUrl: item.geometryUrl || '없음',
-        });
-        const vworldBoundary = await fetchVWorldBoundary(
-          item.bCode,
-          item.name,
-          item.fullAddress,
-          item.center,
-          item.geometryUrl,
-          vworldApiKey
-        );
-        console.log('   V-World API 호출 완료');
-        console.log('   결과:', vworldBoundary ? '성공' : '실패');
-        
-        if (vworldBoundary) {
-          console.log('   ✅ V-World API에서 경계선 데이터 획득 성공');
-          console.log('   경계선 좌표 개수:', vworldBoundary.path.length);
-          onSelectDong(vworldBoundary);
-          setQuery(item.name);
-          messageApi.success({ content: `${item.name} 실제 경계선을 표시합니다.`, key: 'loading' });
-          console.log('=== 동 선택 처리 완료 (V-World API) ===');
-          return;
-        }
-        console.log('   ❌ V-World API에서 경계선 데이터 획득 실패');
-        messageApi.destroy('loading');
-      } else {
-        console.log('   ❌ bCode가 없어 V-World API 호출 불가');
+      if (!item.bCode) {
+        messageApi.error('해당 동의 코드 정보가 없습니다.');
+        return;
       }
 
-      console.log('3단계: 임시 경계선 생성');
-      const boundary = buildApproxBoundary(item);
-      console.log('   임시 경계선 생성 완료');
-      console.log('   임시 경계선 좌표 개수:', boundary.path.length);
-      console.log('   임시 경계선 범위:', {
-        minLat: Math.min(...boundary.path.map(p => p.lat)),
-        maxLat: Math.max(...boundary.path.map(p => p.lat)),
-        minLng: Math.min(...boundary.path.map(p => p.lng)),
-        maxLng: Math.max(...boundary.path.map(p => p.lng)),
-      });
+      messageApi.loading({ content: `${item.name} 경계선을 불러오는 중...`, key: 'loading' });
       
-      onSelectDong(boundary);
-      setQuery(item.name);
-      messageApi.warning({ 
-        content: `${item.name} 실제 경계선 데이터를 찾을 수 없어 임시 경계선을 표시합니다.`, 
-        key: 'loading',
-        duration: 3,
-      });
-      console.log('=== 동 선택 처리 완료 (임시 경계선) ===');
+      const boundary = await fetchVWorldBoundary(
+        item.bCode,
+        item.name,
+        item.fullAddress,
+        item.center,
+        vworldApiKey
+      );
+      
+      if (boundary) {
+        onSelectDong(boundary);
+        setQuery(item.name);
+        messageApi.success({ content: `${item.name} 경계선을 표시합니다.`, key: 'loading' });
+      } else {
+        messageApi.error({ 
+          content: `${item.name} 경계선 데이터를 찾을 수 없습니다.`, 
+          key: 'loading',
+          duration: 3,
+        });
+      }
     },
-    [onSelectDong, messageApi, vworldApiKey, query]
+    [onSelectDong, messageApi, vworldApiKey]
   );
 
   const handleClear = useCallback(() => {
@@ -210,17 +156,6 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
                   key={item.id}
                   style={{ cursor: 'pointer' }}
                   onClick={() => handleSelect(item)}
-                  actions={[
-                    item.hasExactBoundary ? (
-                      <Tag color="green" key="exact">
-                        경계 데이터
-                      </Tag>
-                    ) : (
-                      <Tag color="orange" key="approx">
-                        임시 경계
-                      </Tag>
-                    ),
-                  ]}
                 >
                   <List.Item.Meta
                     title={

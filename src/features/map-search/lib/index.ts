@@ -1,15 +1,14 @@
 import type { LatLngLiteral } from '../types';
-import { DEFAULT_DELTA } from '../constants';
 
 /**
  * 좌표 배열을 간소화합니다 (최대 100개로 제한)
  */
 export const simplifyCoordinates = (coordinates: number[][], tolerance: number = 0.0001): number[][] => {
-  if (coordinates.length <= 100) {
+  if (coordinates.length <= 500) {
     return coordinates;
   }
   
-  console.log(`   좌표 간소화: ${coordinates.length}개 -> 최대 100개로 제한`);
+  console.log(`   좌표 간소화: ${coordinates.length}개 -> 최대 500개로 제한`);
   
   const step = Math.ceil(coordinates.length / 100);
   const simplified: number[][] = [];
@@ -173,30 +172,4 @@ export const parseGeoJSONToBoundary = (
   }
 };
 
-/**
- * 임시 경계선을 생성합니다 (근사치)
- */
-export const buildApproxBoundary = (
-  result: import('../types').DongSearchResult
-): import('../types').DongBoundary => {
-  const { lat, lng } = result.center;
-  const { lat: deltaLat, lng: deltaLng } = DEFAULT_DELTA;
-  const rectangle: LatLngLiteral[] = [
-    { lat: lat + deltaLat, lng: lng - deltaLng },
-    { lat: lat + deltaLat, lng: lng + deltaLng },
-    { lat: lat - deltaLat, lng: lng + deltaLng },
-    { lat: lat - deltaLat, lng: lng - deltaLng },
-  ];
-
-  rectangle.push(rectangle[0]);
-
-  return {
-    id: `${result.id}-approx`,
-    name: result.name,
-    address: result.fullAddress,
-    center: result.center,
-    path: rectangle,
-    source: 'approx',
-  };
-};
 
