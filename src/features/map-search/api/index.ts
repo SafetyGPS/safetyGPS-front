@@ -97,7 +97,7 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
       name: dongName,
       fullAddress: title,
       center,
-      bCode: item.id,
+      bCode: item.id || `${center.lat}-${center.lng}-${index}`, // 폴백 추가
     });
   });
 
@@ -122,8 +122,11 @@ export const fetchVWorldBoundary = async (
   maxRetries: number = 10
 ): Promise<DongBoundary | null> => {
   const bufferSize = 0.05; // 약 5km 반경
-  const bbox = `${center.lat - bufferSize},${center.lng - bufferSize},${center.lat + bufferSize},${center.lng + bufferSize}`;
-  const wfsUrl = `/api/vworld/req/wfs?service=wfs&request=GetFeature&typename=lt_c_ademd&version=2.0.0&srsName=EPSG:4326&output=application/json&key=${apiKey}&domain=http://localhost:8080&bbox=${bbox}&maxfeatures=100`;
+  // WFS API는 lng,lat 순서 (minx, miny, maxx, maxy)
+  const bbox = `${center.lng - bufferSize},${center.lat - bufferSize},${center.lng + bufferSize},${center.lat + bufferSize}`;
+  // 동적 도메인 설정
+  const domain = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080';
+  const wfsUrl = `/api/vworld/req/wfs?service=wfs&request=GetFeature&typename=lt_c_ademd&version=2.0.0&srsName=EPSG:4326&output=application/json&key=${apiKey}&domain=${encodeURIComponent(domain)}&bbox=${bbox}&maxfeatures=100`;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -141,7 +144,7 @@ export const fetchVWorldBoundary = async (
       
       if (wfsData?.type !== 'FeatureCollection' || !wfsData?.features?.length) {
         if (attempt < maxRetries) {
-          await sleep(1000 * attempt);
+          await sleep(1000);
           continue;
         }
         return null;
@@ -168,7 +171,7 @@ export const fetchVWorldBoundary = async (
       
       if (!matchedFeature) {
         if (attempt < maxRetries) {
-          await sleep(1000 * attempt);
+          await sleep(1000);
           continue;
         }
         return null;
@@ -187,14 +190,14 @@ export const fetchVWorldBoundary = async (
       
       // 파싱 실패 시 재시도
       if (attempt < maxRetries) {
-        await sleep(1000 * attempt);
+        await sleep(1000);
         continue;
       }
       
       return null;
     } catch (error) {
       if (attempt < maxRetries) {
-        await sleep(1000 * attempt);
+        await sleep(1000);
         continue;
       }
       return null;
