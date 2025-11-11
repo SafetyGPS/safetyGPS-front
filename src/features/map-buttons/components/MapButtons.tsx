@@ -50,7 +50,7 @@ export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive }) => 
         style={{
             width: CHILD_SIZE,
             height: CHILD_SIZE,
-          marginTop: GAP,
+            marginTop: GAP,
             backgroundColor: '#fff',
             border: '1px solid #d9d9d9',
             opacity: active.cctv ? 0.85 : 1,
