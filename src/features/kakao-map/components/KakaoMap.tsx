@@ -46,7 +46,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     [37.2930, 127.0280],
     [37.2972, 127.0277],
     [37.2941, 127.0239],
-    [37.2960, 127.0237],
   ],
   light: [
     [37.2933, 127.0289],
@@ -58,7 +57,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     [37.2935, 127.0236],
     [37.2963, 127.0281],
     [37.2971, 127.0239],
-    [37.2944, 127.0295],
   ],
   police: [
     [37.2928, 127.0237],
@@ -70,7 +68,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     [37.2920, 127.0272],
     [37.2959, 127.0234],
     [37.2974, 127.0288],
-    [37.2949, 127.0238],
   ],
 };
 
