@@ -8,11 +8,15 @@
   "bracketSpacing": true,
   "endOfLine": "lf",
   "useTabs": false,
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
-  "importOrder": ["^react$", "^react-dom$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[../]", "^[./]"],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "importOrder": [
+    "^react$",
+    "^react-dom$",
+    "<THIRD_PARTY_MODULES>",
+    "^@/(.*)$",
+    "^[../]",
+    "^[./]"
+  ],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
-  "importOrderGroupNamespaceSpecifiers": true,
-  "importOrderCaseInsensitive": true,
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"]
 }

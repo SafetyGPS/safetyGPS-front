@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-
 import cctv from '@/assets/icons/cctv.png';
 import building from '@/assets/icons/security-center.png';
 import light from '@/assets/icons/street-light.png';

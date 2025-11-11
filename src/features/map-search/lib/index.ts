@@ -1,5 +1,4 @@
 import type { GeoJSONFeature, GeoJSONGeometry } from '@/types/vworld';
-
 import type { LatLngLiteral } from '../types';
 
 /**
