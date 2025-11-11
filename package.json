@@ -3,17 +3,19 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "packageManager": "npm@10",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "tsc -b && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix && prettier --write .",
+    "fix": "pnpm run lint:fix",
+    "fix:build": "pnpm run lint:fix && pnpm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "setup-env": "node scripts/setup-env.js",
-    "postinstall": "npm run setup-env"
+    "postinstall": "pnpm run setup-env"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
