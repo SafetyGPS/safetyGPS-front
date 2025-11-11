@@ -9,7 +9,7 @@
     "build": "tsc -b && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix && prettier --write .",
+    "lint:fix": "prettier --write . && eslint . --fix",
     "fix": "pnpm run lint:fix",
     "fix:build": "pnpm run lint:fix && pnpm run build",
     "format": "prettier --write .",
