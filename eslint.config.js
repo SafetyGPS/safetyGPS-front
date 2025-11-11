@@ -48,46 +48,10 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      // Import 순서 및 그룹화 규칙
-      // Prettier가 import 정렬을 담당하므로 ESLint는 검증만 수행
-      // 컨벤션: 프레임워크 > 외부 패키지 > 프로젝트 내부 (shared > feature > 같은 디렉토리)
-      'import/order': [
-        'warn', // error에서 warn으로 변경하여 Prettier가 우선 처리
-        {
-          groups: [
-            ['builtin', 'external'], // 프레임워크 및 외부 패키지
-            'internal', // 프로젝트 내부 (@/shared, @/features 등)
-            ['parent', 'sibling'], // 상위 디렉토리, 같은 디렉토리
-            'index', // index 파일
-            'type', // type imports
-          ],
-          'newlines-between': 'always', // 그룹 간 빈 줄
-          alphabetize: {
-            order: 'asc', // 알파벳 순 정렬
-            caseInsensitive: true,
-          },
-          pathGroups: [
-            // React를 가장 앞에 배치
-            {
-              pattern: 'react',
-              group: 'external',
-              position: 'before',
-            },
-            {
-              pattern: 'react-dom',
-              group: 'external',
-              position: 'before',
-            },
-            // 프로젝트 내부 경로를 internal 그룹으로 분류
-            {
-              pattern: '@/**',
-              group: 'internal',
-            },
-          ],
-          pathGroupsExcludedImportTypes: ['react', 'react-dom'],
-        },
-      ],
-      // 기본 import와 named import 분리 (Prettier에서 처리)
+      // Import 정렬은 Prettier가 담당하므로 ESLint 규칙 비활성화
+      // Prettier 설정: react → react-dom → third-party → @/ → ../ → ./
+      'import/order': 'off',
+      // 중복 import 방지는 유지
       'import/no-duplicates': 'error',
     },
   },
