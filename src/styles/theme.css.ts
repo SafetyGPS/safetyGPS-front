@@ -2,11 +2,11 @@ import { createThemeContract, createTheme } from '@vanilla-extract/css';
 
 export const vars = createThemeContract({
   color: {
-    bg: null,
-    text: null,
+    bg: '',
+    text: '',
   },
   font: {
-    body: null,
+    body: '',
   },
 });
 
@@ -19,7 +19,7 @@ export const themeClass = createTheme(vars, {
   font: {
     body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   },
-} as unknown as typeof vars);
+});
 
 
 
