@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import cctv from '@/assets/icons/cctv.png';
-import building from '@/assets/icons/police-station.png';
+import building from '@/assets/icons/security-center.png';
 import light from '@/assets/icons/street-light.png';
 import type { DongBoundary } from '@/features/map-search/types';
 import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '@/types/kakao';
@@ -37,22 +37,41 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
   }, [onKakaoReady]);
 
   const mockData = {
-    cctv: [
-      [37.2939, 127.0259],
-      [37.2945, 127.0264],
-      [37.295, 127.0255],
-    ],
-    light: [
-      [37.2937, 127.0268],
-      [37.2945, 127.0261],
-      [37.2929, 127.0258],
-    ],
-    police: [
-      [37.2934, 127.025],
-      [37.2948, 127.0267],
-      [37.2952, 127.0253],
-    ],
-  };
+  cctv: [
+    [37.2939, 127.0259],
+    [37.2952, 127.0271],
+    [37.2966, 127.0250],
+    [37.2978, 127.0264],
+    [37.2924, 127.0248],
+    [37.2959, 127.0285],
+    [37.2930, 127.0280],
+    [37.2972, 127.0277],
+    [37.2941, 127.0239],
+  ],
+  light: [
+    [37.2933, 127.0289],
+    [37.2950, 127.0242],
+    [37.2969, 127.0269],
+    [37.2921, 127.0264],
+    [37.2957, 127.0290],
+    [37.2976, 127.0253],
+    [37.2935, 127.0236],
+    [37.2963, 127.0281],
+    [37.2971, 127.0239],
+  ],
+  police: [
+    [37.2928, 127.0237],
+    [37.2942, 127.0286],
+    [37.2968, 127.0246],
+    [37.2979, 127.0279],
+    [37.2951, 127.0293],
+    [37.2936, 127.0251],
+    [37.2920, 127.0272],
+    [37.2959, 127.0234],
+    [37.2974, 127.0288],
+  ],
+};
+
 
   useEffect(() => {
     const jsKey = import.meta.env.VITE_KAKAO_JS_KEY || import.meta.env.VITE_KAKAO_APP_KEY;
@@ -133,24 +152,22 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     }
 
     if (active.light) {
-      markersRef.current.light = mockData.light.map(
-        ([lat, lng]) =>
-          new kakao.Marker({
-            position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(light, new kakao.Size(36, 36)),
-            map: mapRef.current,
-          }),
+      markersRef.current.light = mockData.light.map(([lat, lng]) =>
+        new kakao.Marker({
+          position: new kakao.LatLng(lat, lng),
+          image: new kakao.MarkerImage(light, new kakao.Size(34,34)),
+          map: mapRef.current,
+        })
       );
     }
 
     if (active.police) {
-      markersRef.current.police = mockData.police.map(
-        ([lat, lng]) =>
-          new kakao.Marker({
-            position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(building, new kakao.Size(35, 35)),
-            map: mapRef.current,
-          }),
+      markersRef.current.police = mockData.police.map(([lat, lng]) =>
+        new kakao.Marker({
+          position: new kakao.LatLng(lat, lng),
+          image: new kakao.MarkerImage(building, new kakao.Size(39,39)),
+          map: mapRef.current,
+        })
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
