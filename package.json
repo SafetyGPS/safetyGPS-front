@@ -8,7 +8,9 @@
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "tsc -b && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "setup-env": "node scripts/setup-env.js",
+    "postinstall": "npm run setup-env"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
