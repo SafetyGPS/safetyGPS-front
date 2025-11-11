@@ -9,4 +9,3 @@ globalStyle('body', {
   color: vars.color.text as string,
   fontFamily: vars.font.body as string,
 });
-

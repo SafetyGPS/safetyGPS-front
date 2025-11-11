@@ -11,7 +11,7 @@ body:
       multiple: true
       options:
         - '@safetyGPS/main'
-        
+
     validations:
       required: true
   - type: textarea

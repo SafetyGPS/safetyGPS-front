@@ -22,4 +22,3 @@ export interface DongSearchResult {
   center: LatLngLiteral;
   bCode?: string;
 }
-

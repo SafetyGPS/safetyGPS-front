@@ -1,10 +1,10 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { AimOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Empty, Input, List, Space, Tag, Typography, message } from 'antd';
-import type { DongBoundary, DongSearchResult } from '../types';
+import { Button, Card, Empty, Input, List, message, Space, Tag, Typography } from 'antd';
 import type { KakaoMaps } from '@/types/kakao';
-import { searchDong, fetchVWorldBoundary } from '../api';
+import { fetchVWorldBoundary, searchDong } from '../api';
 import { OUTER_WRAPPER_STYLE } from '../constants';
+import type { DongBoundary, DongSearchResult } from '../types';
 
 interface MapSearchProps {
   kakao: KakaoMaps | null;
@@ -13,7 +13,12 @@ interface MapSearchProps {
   style?: CSSProperties;
 }
 
-export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDong, className, style }) => {
+export const MapSearch: React.FC<MapSearchProps> = ({
+  kakao: _kakao,
+  onSelectDong,
+  className,
+  style,
+}) => {
   // kakao는 props로 받지만 현재 사용하지 않음 (향후 구현 예정)
   void _kakao;
   const [query, setQuery] = useState('');
@@ -33,7 +38,9 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDon
     }
 
     if (disabled) {
-      messageApi.warning('V-World API 키가 설정되지 않았습니다. VITE_VWORLD_API_KEY를 확인해 주세요.');
+      messageApi.warning(
+        'V-World API 키가 설정되지 않았습니다. VITE_VWORLD_API_KEY를 확인해 주세요.',
+      );
       return;
     }
 
@@ -43,15 +50,20 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDon
       const searchResults = await searchDong(query, vworldApiKey);
 
       if (!searchResults.length) {
-        messageApi.warning('경기도 내 검색 결과가 없습니다. 동 이름(예: 보정동) 또는 시 이름(예: 수원시)으로 검색해 주세요.');
+        messageApi.warning(
+          '경기도 내 검색 결과가 없습니다. 동 이름(예: 보정동) 또는 시 이름(예: 수원시)으로 검색해 주세요.',
+        );
       }
 
       setResults(searchResults);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
-      
+      const errorMessage =
+        error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+
       if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-        messageApi.error('V-World API 키가 유효하지 않습니다. .env 파일의 VITE_VWORLD_API_KEY를 확인해 주세요.');
+        messageApi.error(
+          'V-World API 키가 유효하지 않습니다. .env 파일의 VITE_VWORLD_API_KEY를 확인해 주세요.',
+        );
       } else if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
         messageApi.error('V-World API 접근이 거부되었습니다. API 키 권한을 확인해 주세요.');
       } else {
@@ -70,33 +82,33 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDon
         return;
       }
 
-      messageApi.loading({ 
-        content: `${item.name} 경계선을 불러오는 중... (최대 10회 재시도)`, 
+      messageApi.loading({
+        content: `${item.name} 경계선을 불러오는 중... (최대 10회 재시도)`,
         key: 'loading',
         duration: 0,
       });
-      
+
       const boundary = await fetchVWorldBoundary(
         item.bCode,
         item.name,
         item.fullAddress,
         item.center,
-        vworldApiKey
+        vworldApiKey,
       );
-      
+
       if (boundary) {
         onSelectDong(boundary);
         setQuery(item.name);
         messageApi.success({ content: `${item.name} 경계선을 표시합니다.`, key: 'loading' });
       } else {
-        messageApi.error({ 
-          content: `${item.name} 경계선을 불러오지 못했습니다. 다시 시도해주세요.`, 
+        messageApi.error({
+          content: `${item.name} 경계선을 불러오지 못했습니다. 다시 시도해주세요.`,
           key: 'loading',
           duration: 3,
         });
       }
     },
-    [onSelectDong, messageApi, vworldApiKey]
+    [onSelectDong, messageApi, vworldApiKey],
   );
 
   const handleClear = useCallback(() => {
@@ -164,7 +176,9 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDon
                         <Typography.Text strong>{item.name}</Typography.Text>
                       </Space>
                     }
-                    description={<Typography.Text type="secondary">{item.fullAddress}</Typography.Text>}
+                    description={
+                      <Typography.Text type="secondary">{item.fullAddress}</Typography.Text>
+                    }
                   />
                 </List.Item>
               )}
@@ -177,4 +191,3 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDon
 };
 
 export default MapSearch;
-
