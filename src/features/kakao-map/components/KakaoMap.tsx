@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { DongBoundary } from '@/features/map-search/types';
+import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '@/types/kakao';
 import cctv from '@/assets/icons/cctv.png';
 import light from '@/assets/icons/street-light.png';
 import building from '@/assets/icons/police-station.png';
@@ -7,7 +8,7 @@ import building from '@/assets/icons/police-station.png';
 export interface KakaoMapProps {
   active: { cctv: boolean; light: boolean; police: boolean };
   selectedDong: DongBoundary | null;
-  onKakaoReady?: (kakao: any) => void;
+  onKakaoReady?: (kakao: KakaoMaps) => void;
 }
 
 export const DEFAULT_CENTER = { lat: 37.29396045, lng: 127.025977 };
@@ -20,14 +21,14 @@ export const WORLD_MASK_PATH = [
 
 export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKakaoReady }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
-  const markersRef = useRef<{ cctv: any[]; light: any[]; police: any[] }>({
+  const mapRef = useRef<KakaoMapType | null>(null);
+  const markersRef = useRef<{ cctv: Marker[]; light: Marker[]; police: Marker[] }>({
     cctv: [],
     light: [],
     police: [],
   });
-  const boundaryRef = useRef<any>(null);
-  const maskRef = useRef<any>(null);
+  const boundaryRef = useRef<Polygon | null>(null);
+  const maskRef = useRef<Polygon | null>(null);
   const readyCallbackRef = useRef(onKakaoReady);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
   };
 
   useEffect(() => {
-    const jsKey = (import.meta as any).env?.VITE_KAKAO_JS_KEY || (import.meta as any).env?.VITE_KAKAO_APP_KEY;
+    const jsKey = import.meta.env.VITE_KAKAO_JS_KEY || import.meta.env.VITE_KAKAO_APP_KEY;
     
     console.log('카카오 지도 초기화 시작');
     console.log('JavaScript 키:', jsKey ? `${jsKey.substring(0, 10)}...` : '없음');
@@ -70,7 +71,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
       }
       
       try {
-        const kakao = (window as any).kakao;
+        const kakao = window.kakao;
         if (!kakao?.maps) {
           console.error('❌ 카카오 지도 SDK가 로드되지 않았습니다');
           return;
@@ -87,7 +88,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
       }
     };
 
-    if ((window as any).kakao?.maps) {
+    if (window.kakao?.maps) {
       console.log('카카오 지도 SDK 이미 로드됨');
       initMap();
     } else {
@@ -97,12 +98,12 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
       script.async = true;
       script.onload = () => {
         console.log('✅ 카카오 지도 SDK 스크립트 로드 완료');
-        (window as any).kakao.maps.load(() => {
+        window.kakao?.maps.load(() => {
           console.log('✅ 카카오 지도 SDK 로드 완료');
           initMap();
         });
       };
-      script.onerror = (error) => {
+      script.onerror = (error: ErrorEvent) => {
         console.error('❌ 카카오 지도 SDK 스크립트 로드 실패:', error);
         console.error('API 키를 확인하세요:', jsKey);
       };
@@ -111,8 +112,8 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !(window as any).kakao?.maps) return;
-    const kakao = (window as any).kakao.maps;
+    if (!mapRef.current || !window.kakao?.maps) return;
+    const kakao = window.kakao.maps;
 
     Object.values(markersRef.current).forEach((arr) => arr.forEach((m) => m.setMap(null)));
     markersRef.current = { cctv: [], light: [], police: [] };
@@ -146,10 +147,11 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
         })
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   useEffect(() => {
-    const kakao = (window as any).kakao;
+    const kakao = window.kakao;
     if (!mapRef.current || !kakao?.maps) return;
 
     boundaryRef.current?.setMap(null);

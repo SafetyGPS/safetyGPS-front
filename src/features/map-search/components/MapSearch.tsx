@@ -2,23 +2,26 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { AimOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Empty, Input, List, Space, Tag, Typography, message } from 'antd';
 import type { DongBoundary, DongSearchResult } from '../types';
+import type { KakaoMaps } from '@/types/kakao';
 import { searchDong, fetchVWorldBoundary } from '../api';
 import { OUTER_WRAPPER_STYLE } from '../constants';
 
 interface MapSearchProps {
-  kakao: any | null;
+  kakao: KakaoMaps | null;
   onSelectDong: (boundary: DongBoundary | null) => void;
   className?: string;
   style?: CSSProperties;
 }
 
-export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, className, style }) => {
+export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDong, className, style }) => {
+  // kakao는 props로 받지만 현재 사용하지 않음 (향후 구현 예정)
+  void _kakao;
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<DongSearchResult[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const vworldApiKey = (import.meta as any).env?.VITE_VWORLD_API_KEY || '';
+  const vworldApiKey = import.meta.env.VITE_VWORLD_API_KEY || '';
   const disabled = !vworldApiKey;
 
   const mergedStyle = useMemo(() => ({ ...OUTER_WRAPPER_STYLE, ...style }), [style]);
@@ -44,8 +47,8 @@ export const MapSearch: React.FC<MapSearchProps> = ({ kakao, onSelectDong, class
       }
 
       setResults(searchResults);
-    } catch (error: any) {
-      const errorMessage = error?.message || '알 수 없는 오류가 발생했습니다.';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
       
       if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
         messageApi.error('V-World API 키가 유효하지 않습니다. .env 파일의 VITE_VWORLD_API_KEY를 확인해 주세요.');

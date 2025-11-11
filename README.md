@@ -48,28 +48,82 @@
 
 ## ⚙️ 환경 설정 (Environment Setup)
 
-### 1. 카카오 개발자 키 발급
+### 1. API 키 발급
+
+#### V-World API 키
+1. [V-World 개발자 센터](https://www.vworld.kr/dev/v4dev_guide.do)에 접속
+2. 회원가입 후 API 키 발급
+3.VITE_VWORLD_API_KEY=your_vworld_api_key_here
+
+#### 카카오 개발자 키
 1. [카카오 개발자 콘솔](https://developers.kakao.com/)에 접속
 2. 애플리케이션 등록 후 다음 키들을 발급받습니다:
    - **JavaScript 키**: 지도 SDK 로드용
-   - **REST API 키**: REST API 호출용 (동 검색 등)
+3.VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 
 ### 2. 환경 변수 설정
-프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 아래 내용을 추가하세요:
 
-```env
-# 카카오 지도 API 키 설정
-# JavaScript 키: 지도 SDK 로드용
-VITE_KAKAO_JS_KEY=your_javascript_key_here
+**✅ 자동 설정**: `npm install` 실행 시 자동으로 `.env` 파일이 생성됩니다.
 
-# REST API 키: REST API 호출용 (동 검색 등)
-VITE_KAKAO_REST_KEY=your_rest_api_key_here
+#### 방법 1: .env.local 파일 사용 (권장)
+`.env.local.example` 파일을 참고하여 `.env.local` 파일을 생성하세요:
+
+```bash
+# .env.local.example을 복사
+cp .env.local.example .env.local
+
+# .env.local 파일을 열어서 실제 키값 입력
+# (팀 내부 문서나 비밀번호 관리자에서 키 확인)
+
+npm install  # .env.local에서 키를 자동으로 읽어서 .env 생성
+npm run dev  # 바로 개발 서버 실행 가능
 ```
 
-**⚠️ 중요**: `.env` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.  
-실제 키 값은 위 예시의 `your_javascript_key_here`, `your_rest_api_key_here` 부분을 발급받은 키로 교체하세요.
+**💡 팁**: `.env.local` 파일은 한 번만 만들면 계속 사용할 수 있습니다. Git에 커밋되지 않으므로 안전합니다.
 
-### 3. 개발 서버 실행
+#### 방법 2: 환경 변수 사용
+시스템 환경 변수로 설정할 수도 있습니다:
+
+```bash
+export VITE_VWORLD_API_KEY=your_key_here
+export VITE_KAKAO_JS_KEY=your_key_here
+npm install
+```
+
+#### 방법 3: 수동 설정
+`.env` 파일을 직접 생성하거나 수정할 수 있습니다:
+
+```env
+# V-World API 키
+# 발급: https://www.vworld.kr/dev/v4dev_guide.do
+VITE_VWORLD_API_KEY=your_vworld_api_key_here
+
+# 카카오 지도 API 키
+# 발급: https://developers.kakao.com/
+# JavaScript 키: 지도 SDK 로드용
+VITE_KAKAO_JS_KEY=your_kakao_js_key_here
+```
+
+**🔒 보안 주의사항**: 
+- `.env`와 `.env.local` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.
+- **API 키는 절대 코드에 하드코딩하거나 Git에 커밋하지 마세요.**
+- 개발용 키는 팀 내부 문서나 비밀번호 관리자에서 확인하세요.
+- CI/CD에서는 GitHub Secrets를 사용합니다 (자동으로 환경 변수 주입).
+
+### 3. CI/CD 설정 (GitHub Actions)
+
+**CI/CD는 GitHub Actions에서만 작동하며, 로컬 개발 환경에는 영향을 주지 않습니다.**
+
+#### GitHub Secrets 설정
+1. GitHub 저장소 → Settings → Secrets and variables → Actions
+2. 다음 Secrets 추가:
+   - `VITE_VWORLD_API_KEY`: V-World API 키
+   - `VITE_KAKAO_JS_KEY`: 카카오 지도 JavaScript 키
+
+**보안**: GitHub Secrets는 암호화되어 저장되며, GitHub Actions에서만 사용됩니다.  
+코드를 푸시하면 자동으로 빌드와 린트 체크가 실행됩니다.
+
+### 4. 개발 서버 실행
 ```bash
 npm run dev
 ```

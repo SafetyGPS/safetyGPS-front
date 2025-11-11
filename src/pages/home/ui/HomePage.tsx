@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import type { DongBoundary } from '@/features/map-search/types';
+import type { KakaoMaps } from '@/types/kakao';
 import { KakaoMap } from '@/features/kakao-map';
 import { MapButtons } from '@/features/map-buttons';
 import { MapSearch } from '@/features/map-search';
@@ -13,11 +14,11 @@ export const HomePage: React.FC = () => {
     police: false,
   });
   const [selectedDong, setSelectedDong] = useState<DongBoundary | null>(null);
-  const [kakaoObj, setKakaoObj] = useState<any | null>(
-    () => (typeof window !== 'undefined' ? (window as any).kakao ?? null : null)
+  const [kakaoObj, setKakaoObj] = useState<KakaoMaps | null>(
+    () => (typeof window !== 'undefined' ? window.kakao ?? null : null)
   );
   
-  const handleKakaoReady = useCallback((kakao: any) => {
+  const handleKakaoReady = useCallback((kakao: KakaoMaps) => {
     setKakaoObj(kakao);
   }, []);
 

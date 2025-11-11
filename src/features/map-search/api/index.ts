@@ -1,4 +1,5 @@
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
+import type { VWorldSearchItem } from '@/types/vworld';
 import { parseFeatureToBoundary } from '../lib';
 
 /**
@@ -38,7 +39,7 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     .filter(token => token.endsWith('동') || token.endsWith('면') || token.endsWith('읍'))
     .map(token => token.replace(/(?:동|면|읍)$/u, '').trim());
 
-  items.forEach((item: any, index: number) => {
+  items.forEach((item: VWorldSearchItem) => {
     const title = item.title || '';
     
     if (!title.includes('경기도')) return;
@@ -86,10 +87,10 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     if (seen.has(uniqueKey)) return;
     seen.add(uniqueKey);
 
-    const point = item.point || {};
+    const point = item.point;
     const center = {
-      lat: Number(point.y) || 0,
-      lng: Number(point.x) || 0,
+      lat: Number(point?.y) || 0,
+      lng: Number(point?.x) || 0,
     };
 
     results.push({
@@ -191,7 +192,7 @@ export const fetchVWorldBoundary = async (
       }
       
       return null;
-    } catch (error) {
+    } catch {
       if (attempt < maxRetries) {
         await sleep(1000);
         continue;
