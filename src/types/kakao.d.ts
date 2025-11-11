@@ -29,6 +29,7 @@ export interface MapOptions {
 export interface Map {
   setCenter(latlng: LatLng): void;
   setLevel(level: number): void;
+  setBounds(bounds: LatLngBounds): void;
   relayout(): void;
 }
 

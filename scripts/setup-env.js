@@ -47,19 +47,15 @@ function setupEnv() {
   // .env.example이 있으면 복사, 없으면 기본 템플릿 생성
   if (existsSync(ENV_EXAMPLE_FILE)) {
     envContent = readFileSync(ENV_EXAMPLE_FILE, 'utf-8');
-    // 플레이스홀더를 실제 키값으로 교체 (플레이스홀더인 경우에만)
-    if (finalVworldKey !== 'your_vworld_api_key_here') {
-      envContent = envContent.replace(
-        /VITE_VWORLD_API_KEY=.*/g,
-        `VITE_VWORLD_API_KEY=${finalVworldKey}`
-      );
-    }
-    if (finalKakaoKey !== 'your_kakao_js_key_here') {
-      envContent = envContent.replace(
-        /VITE_KAKAO_JS_KEY=.*/g,
-        `VITE_KAKAO_JS_KEY=${finalKakaoKey}`
-      );
-    }
+    // 플레이스홀더를 실제 키값으로 교체
+    envContent = envContent.replace(
+      /VITE_VWORLD_API_KEY=.*/g,
+      `VITE_VWORLD_API_KEY=${finalVworldKey}`
+    );
+    envContent = envContent.replace(
+      /VITE_KAKAO_JS_KEY=.*/g,
+      `VITE_KAKAO_JS_KEY=${finalKakaoKey}`
+    );
   } else {
     // .env.example이 없으면 기본 템플릿 생성
     envContent = `# V-World API 키

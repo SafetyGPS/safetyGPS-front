@@ -19,7 +19,7 @@ export const themeClass = createTheme(vars, {
   font: {
     body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   },
-});
+} as unknown as typeof vars);
 
 
 
