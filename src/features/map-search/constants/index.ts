@@ -8,4 +8,3 @@ export const OUTER_WRAPPER_STYLE: CSSProperties = {
   maxWidth: 'calc(100% - 48px)',
   zIndex: 1100,
 };
-

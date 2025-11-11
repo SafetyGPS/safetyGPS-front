@@ -31,4 +31,3 @@ export interface GeoJSONFeatureCollection {
   type: 'FeatureCollection';
   features: GeoJSONFeature[];
 }
-

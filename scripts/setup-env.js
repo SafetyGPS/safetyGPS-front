@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const ROOT_DIR = process.cwd();
@@ -28,8 +28,10 @@ function setupEnv() {
       const localContent = readFileSync(ENV_LOCAL_FILE, 'utf-8');
       const vworldMatch = localContent.match(/VITE_VWORLD_API_KEY=(.+)/);
       const kakaoMatch = localContent.match(/VITE_KAKAO_JS_KEY=(.+)/);
-      if (vworldMatch) localKeys.VITE_VWORLD_API_KEY = vworldMatch[1].trim().replace(/^["']|["']$/g, '');
-      if (kakaoMatch) localKeys.VITE_KAKAO_JS_KEY = kakaoMatch[1].trim().replace(/^["']|["']$/g, '');
+      if (vworldMatch)
+        localKeys.VITE_VWORLD_API_KEY = vworldMatch[1].trim().replace(/^["']|["']$/g, '');
+      if (kakaoMatch)
+        localKeys.VITE_KAKAO_JS_KEY = kakaoMatch[1].trim().replace(/^["']|["']$/g, '');
     } catch {
       // 무시
     }
@@ -47,12 +49,9 @@ function setupEnv() {
     // 플레이스홀더를 실제 키값으로 교체
     envContent = envContent.replace(
       /VITE_VWORLD_API_KEY=.*/g,
-      `VITE_VWORLD_API_KEY=${finalVworldKey}`
+      `VITE_VWORLD_API_KEY=${finalVworldKey}`,
     );
-    envContent = envContent.replace(
-      /VITE_KAKAO_JS_KEY=.*/g,
-      `VITE_KAKAO_JS_KEY=${finalKakaoKey}`
-    );
+    envContent = envContent.replace(/VITE_KAKAO_JS_KEY=.*/g, `VITE_KAKAO_JS_KEY=${finalKakaoKey}`);
   } else {
     // .env.example이 없으면 기본 템플릿 생성
     envContent = `# V-World API 키
@@ -68,7 +67,7 @@ VITE_KAKAO_JS_KEY=${finalKakaoKey}
 
   writeFileSync(ENV_FILE, envContent, 'utf-8');
   console.log('✅ .env 파일이 자동으로 생성되었습니다!');
-  
+
   if (finalVworldKey === 'your_vworld_api_key_here' || finalKakaoKey === 'your_kakao_js_key_here') {
     console.log('⚠️  .env 파일에서 API 키를 실제 키값으로 교체해주세요.');
     console.log('📝 방법 1: .env.local 파일 생성 (권장)');
@@ -86,4 +85,3 @@ VITE_KAKAO_JS_KEY=${finalKakaoKey}
 }
 
 setupEnv();
-

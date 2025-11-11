@@ -8,10 +8,10 @@
 
 최근 1~2년간 **한국형사정책연구원(KICJ)** 조사에 따르면,  
 폭력범죄 피해는 주로 **오후 6시부터 자정(18:00–24:00)** 사이에  
-가장 많이 발생하는 것으로 나타났습니다.  
+가장 많이 발생하는 것으로 나타났습니다.
 
 또한 성인 여성의 <b>63%</b>가 야간 보행 중  
-**성폭력·성희롱 피해에 대한 불안감**을 느낀다고 응답했습니다.   
+**성폭력·성희롱 피해에 대한 불안감**을 느낀다고 응답했습니다.
 
 이러한 사회적 배경 속에서 **‘SafetyGPS’** 프로젝트는  
 실제 **가로등, 치안 센터, CCTV** 위치 정보를 기반으로  
@@ -22,7 +22,7 @@
 ## 💡 주요 기능 (Key Features)
 
 1. **실시간 안전 지도 표시**
-   - 실제 **가로등, 치안 센터, CCTV 위치** 데이터를 지도 위에 시각화  
+   - 실제 **가로등, 치안 센터, CCTV 위치** 데이터를 지도 위에 시각화
    - 주변 환경에 따른 **안전 점수(Safety Score)** 제공
 
 2. **LLM 기반 위험도 분석**
@@ -30,19 +30,19 @@
      사용자의 위치 기반으로 **지역별 치안 위험도 분석 및 안내**
 
 3. **참여형 커뮤니티 시스템**
-   - 사용자가 직접 **별점 평가 및 의견 제공**  
+   - 사용자가 직접 **별점 평가 및 의견 제공**
    - 데이터 신뢰도 향상 및 지역 안전성 개선에 기여
 
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)
 
-| 분야 | 기술 |
-|------|------|
-| Frontend | **React**, **TypeScript**, **Vanila-extract** |
-| Package Manager | **pnpm** |
-| Version Control | **GitHub** |
-| 지도 API | **카카오 지도 API** |
+| 분야            | 기술                                          |
+| --------------- | --------------------------------------------- |
+| Frontend        | **React**, **TypeScript**, **Vanila-extract** |
+| Package Manager | **pnpm**                                      |
+| Version Control | **GitHub**                                    |
+| 지도 API        | **카카오 지도 API**                           |
 
 ---
 
@@ -51,21 +51,24 @@
 ### 1. API 키 발급
 
 #### V-World API 키
+
 1. [V-World 개발자 센터](https://www.vworld.kr/dev/v4dev_guide.do)에 접속
 2. 회원가입 후 API 키 발급
-3.VITE_VWORLD_API_KEY=your_vworld_api_key_here
+   3.VITE_VWORLD_API_KEY=your_vworld_api_key_here
 
 #### 카카오 개발자 키
+
 1. [카카오 개발자 콘솔](https://developers.kakao.com/)에 접속
 2. 애플리케이션 등록 후 다음 키들을 발급받습니다:
    - **JavaScript 키**: 지도 SDK 로드용
-3.VITE_KAKAO_JS_KEY=your_kakao_js_key_here
+     3.VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 
 ### 2. 환경 변수 설정
 
 **✅ 자동 설정**: `npm install` 실행 시 자동으로 `.env` 파일이 생성됩니다.
 
 #### 방법 1: .env.local 파일 사용 (권장)
+
 `.env.local.example` 파일을 참고하여 `.env.local` 파일을 생성하세요:
 
 ```bash
@@ -82,6 +85,7 @@ npm run dev  # 바로 개발 서버 실행 가능
 **💡 팁**: `.env.local` 파일은 한 번만 만들면 계속 사용할 수 있습니다. Git에 커밋되지 않으므로 안전합니다.
 
 #### 방법 2: 환경 변수 사용
+
 시스템 환경 변수로 설정할 수도 있습니다:
 
 ```bash
@@ -91,6 +95,7 @@ npm install
 ```
 
 #### 방법 3: 수동 설정
+
 `.env` 파일을 직접 생성하거나 수정할 수 있습니다:
 
 ```env
@@ -104,7 +109,8 @@ VITE_VWORLD_API_KEY=your_vworld_api_key_here
 VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 ```
 
-**🔒 보안 주의사항**: 
+**🔒 보안 주의사항**:
+
 - `.env`와 `.env.local` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.
 - **API 키는 절대 코드에 하드코딩하거나 Git에 커밋하지 마세요.**
 - 개발용 키는 팀 내부 문서나 비밀번호 관리자에서 확인하세요.
@@ -115,6 +121,7 @@ VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 **CI/CD는 GitHub Actions에서만 작동하며, 로컬 개발 환경에는 영향을 주지 않습니다.**
 
 #### GitHub Secrets 설정
+
 1. GitHub 저장소 → Settings → Secrets and variables → Actions
 2. 다음 Secrets 추가:
    - `VITE_VWORLD_API_KEY`: V-World API 키
@@ -124,6 +131,7 @@ VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 코드를 푸시하면 자동으로 빌드와 린트 체크가 실행됩니다.
 
 ### 4. 개발 서버 실행
+
 ```bash
 npm run dev
 ```
@@ -134,12 +142,13 @@ npm run dev
 ![pnpm](https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white)
 
 - global vars 기반 편리한 스타일링 적용 및 타입 안정성 기능 사용을 위해 스타일링 도구로 `vanilla-extract`를 선택하였습니다.
+
 ---
 
 ## 👥 팀 구성 (Team)
 
-| 이름 | 역할 |
-|------|------|
+| 이름       | 역할                                              |
+| ---------- | ------------------------------------------------- |
 | **박준서** | UI 설계 및 프론트엔드 개발, 기능 점검 및 유지보수 |
 | **김현섭** | UI 설계 및 프론트엔드 개발, 기능 점검 및 유지보수 |
 
@@ -147,11 +156,11 @@ npm run dev
 
 ## 🚀 향후 개선 계획 (Future Plans)
 
-| 주차 | 계획 내용 |
-|------|------------|
-| **1주차** | 지도 API 연동 및 기본 UI 구성 |
-| **2주차** | 가로등, CCTV, 치안 센터 위치 표시 기능 구현 |
-| **3주차** | LLM 기반 위험도 분석 기능 추가 |
+| 주차      | 계획 내용                                       |
+| --------- | ----------------------------------------------- |
+| **1주차** | 지도 API 연동 및 기본 UI 구성                   |
+| **2주차** | 가로등, CCTV, 치안 센터 위치 표시 기능 구현     |
+| **3주차** | LLM 기반 위험도 분석 기능 추가                  |
 | **4주차** | 사용자 참여형 커뮤니티 시스템 구축 및 최종 점검 |
 
 ---
@@ -174,14 +183,15 @@ This project is licensed under the **MIT License**.
 
 - **Repository Name**: `safetygps`
 - **Visibility**: Public
-- **License**: MIT  
+- **License**: MIT
 - **Initialized with**: ✅ README / ✅ .gitignore (Node) / ✅ License
 
 ---
 
 ### 🖋️ 작성자
 
-**Team SafetyGPS**  
+**Team SafetyGPS**
+
 > “안전한 밤길, 우리의 기술로 밝혀갑니다.”
 
 ---

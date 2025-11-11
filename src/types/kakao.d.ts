@@ -100,7 +100,10 @@ export interface LatLngBounds {
 }
 
 export interface Geocoder {
-  addressSearch(address: string, callback: (result: GeocoderResult[], status: string) => void): void;
+  addressSearch(
+    address: string,
+    callback: (result: GeocoderResult[], status: string) => void,
+  ): void;
 }
 
 export interface GeocoderResult {
@@ -114,4 +117,3 @@ declare global {
     kakao?: KakaoMaps;
   }
 }
-

@@ -1,4 +1,4 @@
-import { createThemeContract, createTheme } from '@vanilla-extract/css';
+import { createTheme, createThemeContract } from '@vanilla-extract/css';
 
 export const vars = createThemeContract({
   color: {
@@ -20,7 +20,3 @@ export const themeClass = createTheme(vars, {
     body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   },
 });
-
-
-
-

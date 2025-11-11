@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
+
+import cctv from '@/assets/icons/cctv.png';
+import building from '@/assets/icons/police-station.png';
+import light from '@/assets/icons/street-light.png';
 import type { DongBoundary } from '@/features/map-search/types';
 import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '@/types/kakao';
-import cctv from '@/assets/icons/cctv.png';
-import light from '@/assets/icons/street-light.png';
-import building from '@/assets/icons/police-station.png';
 
 export interface KakaoMapProps {
   active: { cctv: boolean; light: boolean; police: boolean };
@@ -39,7 +40,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     cctv: [
       [37.2939, 127.0259],
       [37.2945, 127.0264],
-      [37.2950, 127.0255],
+      [37.295, 127.0255],
     ],
     light: [
       [37.2937, 127.0268],
@@ -47,7 +48,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
       [37.2929, 127.0258],
     ],
     police: [
-      [37.2934, 127.0250],
+      [37.2934, 127.025],
       [37.2948, 127.0267],
       [37.2952, 127.0253],
     ],
@@ -55,12 +56,14 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
 
   useEffect(() => {
     const jsKey = import.meta.env.VITE_KAKAO_JS_KEY || import.meta.env.VITE_KAKAO_APP_KEY;
-    
+
     console.log('카카오 지도 초기화 시작');
     console.log('JavaScript 키:', jsKey ? `${jsKey.substring(0, 10)}...` : '없음');
-    
+
     if (!jsKey) {
-      console.error('❌ Kakao JavaScript key missing. Set VITE_KAKAO_JS_KEY or VITE_KAKAO_APP_KEY in .env');
+      console.error(
+        '❌ Kakao JavaScript key missing. Set VITE_KAKAO_JS_KEY or VITE_KAKAO_APP_KEY in .env',
+      );
       return;
     }
 
@@ -69,14 +72,14 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
         console.error('❌ 지도 컨테이너 ref가 없습니다');
         return;
       }
-      
+
       try {
         const kakao = window.kakao;
         if (!kakao?.maps) {
           console.error('❌ 카카오 지도 SDK가 로드되지 않았습니다');
           return;
         }
-        
+
         console.log('✅ 카카오 지도 SDK 로드 완료, 지도 초기화 중...');
         const center = new kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
         const map = new kakao.maps.Map(ref.current, { center, level: 4 });
@@ -119,32 +122,35 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     markersRef.current = { cctv: [], light: [], police: [] };
 
     if (active.cctv) {
-      markersRef.current.cctv = mockData.cctv.map(([lat, lng]) =>
-        new kakao.Marker({
-          position: new kakao.LatLng(lat, lng),
-          image: new kakao.MarkerImage(cctv, new kakao.Size(32,32)),
-          map: mapRef.current,
-        })
+      markersRef.current.cctv = mockData.cctv.map(
+        ([lat, lng]) =>
+          new kakao.Marker({
+            position: new kakao.LatLng(lat, lng),
+            image: new kakao.MarkerImage(cctv, new kakao.Size(32, 32)),
+            map: mapRef.current,
+          }),
       );
     }
 
     if (active.light) {
-      markersRef.current.light = mockData.light.map(([lat, lng]) =>
-        new kakao.Marker({
-          position: new kakao.LatLng(lat, lng),
-          image: new kakao.MarkerImage(light, new kakao.Size(36,36)),
-          map: mapRef.current,
-        })
+      markersRef.current.light = mockData.light.map(
+        ([lat, lng]) =>
+          new kakao.Marker({
+            position: new kakao.LatLng(lat, lng),
+            image: new kakao.MarkerImage(light, new kakao.Size(36, 36)),
+            map: mapRef.current,
+          }),
       );
     }
 
     if (active.police) {
-      markersRef.current.police = mockData.police.map(([lat, lng]) =>
-        new kakao.Marker({
-          position: new kakao.LatLng(lat, lng),
-          image: new kakao.MarkerImage(building, new kakao.Size(35,35)),
-          map: mapRef.current,
-        })
+      markersRef.current.police = mockData.police.map(
+        ([lat, lng]) =>
+          new kakao.Marker({
+            position: new kakao.LatLng(lat, lng),
+            image: new kakao.MarkerImage(building, new kakao.Size(35, 35)),
+            map: mapRef.current,
+          }),
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -162,7 +168,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
     if (!selectedDong?.path?.length) return;
 
     const highlightPath = selectedDong.path.map(
-      (coord) => new kakao.maps.LatLng(coord.lat, coord.lng)
+      (coord) => new kakao.maps.LatLng(coord.lat, coord.lng),
     );
 
     boundaryRef.current = new kakao.maps.Polygon({
@@ -204,4 +210,3 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKaka
 };
 
 export default KakaoMap;
-
