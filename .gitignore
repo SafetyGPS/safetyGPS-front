@@ -148,5 +148,4 @@ dist
 !.env.example
 *.log
 .DS_Store
-pnpm-lock.yaml
 
