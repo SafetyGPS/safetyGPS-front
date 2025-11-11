@@ -4,8 +4,7 @@ import type { GeoJSONGeometry, GeoJSONFeature } from '@/types/vworld';
 /**
  * 좌표 배열을 간소화 (최대 500개로 제한)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const simplifyCoordinates = (coordinates: number[][], _tolerance: number = 0.0001): number[][] => {
+export const simplifyCoordinates = (coordinates: number[][]): number[][] => {
   if (coordinates.length <= 500) {
     return coordinates;
   }

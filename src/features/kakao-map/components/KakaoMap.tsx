@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { DongBoundary } from '@/features/map-search/types';
-import type { KakaoMaps, Map, Marker, Polygon } from '@/types/kakao';
+import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '@/types/kakao';
 import cctv from '@/assets/icons/cctv.png';
 import light from '@/assets/icons/street-light.png';
 import building from '@/assets/icons/police-station.png';
@@ -21,7 +21,7 @@ export const WORLD_MASK_PATH = [
 
 export const KakaoMap: React.FC<KakaoMapProps> = ({ active, selectedDong, onKakaoReady }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<Map | null>(null);
+  const mapRef = useRef<KakaoMapType | null>(null);
   const markersRef = useRef<{ cctv: Marker[]; light: Marker[]; police: Marker[] }>({
     cctv: [],
     light: [],

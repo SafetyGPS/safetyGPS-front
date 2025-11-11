@@ -87,10 +87,10 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     if (seen.has(uniqueKey)) return;
     seen.add(uniqueKey);
 
-    const point = item.point || {};
+    const point = item.point;
     const center = {
-      lat: Number((point as { y: string }).y) || 0,
-      lng: Number((point as { x: string }).x) || 0,
+      lat: Number(point?.y) || 0,
+      lng: Number(point?.x) || 0,
     };
 
     results.push({

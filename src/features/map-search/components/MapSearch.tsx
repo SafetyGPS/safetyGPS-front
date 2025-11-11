@@ -14,8 +14,8 @@ interface MapSearchProps {
 }
 
 export const MapSearch: React.FC<MapSearchProps> = ({ kakao: _kakao, onSelectDong, className, style }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _ = _kakao; // kakao는 props로 받지만 현재 사용하지 않음
+  // kakao는 props로 받지만 현재 사용하지 않음 (향후 구현 예정)
+  void _kakao;
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<DongSearchResult[]>([]);

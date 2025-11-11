@@ -6,12 +6,9 @@ const ENV_FILE = join(ROOT_DIR, '.env');
 const ENV_EXAMPLE_FILE = join(ROOT_DIR, '.env.example');
 const ENV_LOCAL_FILE = join(ROOT_DIR, '.env.local');
 
-// 개발용 기본 API 키값 (프로젝트 공통 키)
-// ⚠️ 주의: 이 키는 개발/테스트용이며, 프로덕션에서는 개별 키를 사용해야 합니다.
-const DEFAULT_KEYS = {
-  VITE_VWORLD_API_KEY: '6BBBB65E-AEEF-3351-A3E2-98D77ED68BB3',
-  VITE_KAKAO_JS_KEY: '8d52864d50257802a4d9a556f6f25e31',
-};
+// 개발용 기본 API 키값은 코드에서 제거되었습니다.
+// 보안을 위해 .env.local 파일이나 환경 변수를 사용하세요.
+// 팀 내부 문서나 비밀번호 관리자에서 키를 확인할 수 있습니다.
 
 function setupEnv() {
   // .env 파일이 이미 있으면 건너뛰기
@@ -31,16 +28,16 @@ function setupEnv() {
       const localContent = readFileSync(ENV_LOCAL_FILE, 'utf-8');
       const vworldMatch = localContent.match(/VITE_VWORLD_API_KEY=(.+)/);
       const kakaoMatch = localContent.match(/VITE_KAKAO_JS_KEY=(.+)/);
-      if (vworldMatch) localKeys.VITE_VWORLD_API_KEY = vworldMatch[1].trim();
-      if (kakaoMatch) localKeys.VITE_KAKAO_JS_KEY = kakaoMatch[1].trim();
+      if (vworldMatch) localKeys.VITE_VWORLD_API_KEY = vworldMatch[1].trim().replace(/^["']|["']$/g, '');
+      if (kakaoMatch) localKeys.VITE_KAKAO_JS_KEY = kakaoMatch[1].trim().replace(/^["']|["']$/g, '');
     } catch {
       // 무시
     }
   }
 
-  // 우선순위: 환경 변수 > .env.local > 기본 키값 > 플레이스홀더
-  const finalVworldKey = vworldKey || localKeys.VITE_VWORLD_API_KEY || DEFAULT_KEYS.VITE_VWORLD_API_KEY;
-  const finalKakaoKey = kakaoKey || localKeys.VITE_KAKAO_JS_KEY || DEFAULT_KEYS.VITE_KAKAO_JS_KEY;
+  // 우선순위: 환경 변수 > .env.local > 플레이스홀더
+  const finalVworldKey = vworldKey || localKeys.VITE_VWORLD_API_KEY || 'your_vworld_api_key_here';
+  const finalKakaoKey = kakaoKey || localKeys.VITE_KAKAO_JS_KEY || 'your_kakao_js_key_here';
 
   let envContent = '';
 
@@ -72,8 +69,15 @@ VITE_KAKAO_JS_KEY=${finalKakaoKey}
   writeFileSync(ENV_FILE, envContent, 'utf-8');
   console.log('✅ .env 파일이 자동으로 생성되었습니다!');
   
-  if (finalVworldKey === DEFAULT_KEYS.VITE_VWORLD_API_KEY && finalKakaoKey === DEFAULT_KEYS.VITE_KAKAO_JS_KEY) {
-    console.log('📝 기본 개발용 키가 설정되었습니다. 바로 개발을 시작할 수 있습니다!');
+  if (finalVworldKey === 'your_vworld_api_key_here' || finalKakaoKey === 'your_kakao_js_key_here') {
+    console.log('⚠️  .env 파일에서 API 키를 실제 키값으로 교체해주세요.');
+    console.log('📝 방법 1: .env.local 파일 생성 (권장)');
+    console.log('   echo "VITE_VWORLD_API_KEY=your_key" > .env.local');
+    console.log('   echo "VITE_KAKAO_JS_KEY=your_key" >> .env.local');
+    console.log('   npm run setup-env');
+    console.log('📝 방법 2: 팀 내부 문서에서 키 확인 후 .env 파일 직접 수정');
+    console.log('📝 V-World API 키 발급: https://www.vworld.kr/dev/v4dev_guide.do');
+    console.log('📝 카카오 API 키 발급: https://developers.kakao.com/');
   } else if (vworldKey || kakaoKey) {
     console.log('📝 환경 변수에서 키를 가져왔습니다.');
   } else if (localKeys.VITE_VWORLD_API_KEY || localKeys.VITE_KAKAO_JS_KEY) {

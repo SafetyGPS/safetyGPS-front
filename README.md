@@ -53,27 +53,33 @@
 #### V-World API 키
 1. [V-World 개발자 센터](https://www.vworld.kr/dev/v4dev_guide.do)에 접속
 2. 회원가입 후 API 키 발급
+3.VITE_VWORLD_API_KEY=your_vworld_api_key_here
 
 #### 카카오 개발자 키
 1. [카카오 개발자 콘솔](https://developers.kakao.com/)에 접속
 2. 애플리케이션 등록 후 다음 키들을 발급받습니다:
    - **JavaScript 키**: 지도 SDK 로드용
+3.VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 
 ### 2. 환경 변수 설정
 
 **✅ 자동 설정**: `npm install` 실행 시 자동으로 `.env` 파일이 생성됩니다.
 
 #### 방법 1: .env.local 파일 사용 (권장)
-프로젝트 루트에 `.env.local` 파일을 생성하고 키를 입력하세요. 이 파일은 Git에 커밋되지 않습니다.
+`.env.local.example` 파일을 참고하여 `.env.local` 파일을 생성하세요:
 
 ```bash
-# .env.local 파일 생성
-echo "VITE_VWORLD_API_KEY=your_key_here" > .env.local
-echo "VITE_KAKAO_JS_KEY=your_key_here" >> .env.local
+# .env.local.example을 복사
+cp .env.local.example .env.local
+
+# .env.local 파일을 열어서 실제 키값 입력
+# (팀 내부 문서나 비밀번호 관리자에서 키 확인)
 
 npm install  # .env.local에서 키를 자동으로 읽어서 .env 생성
 npm run dev  # 바로 개발 서버 실행 가능
 ```
+
+**💡 팁**: `.env.local` 파일은 한 번만 만들면 계속 사용할 수 있습니다. Git에 커밋되지 않으므로 안전합니다.
 
 #### 방법 2: 환경 변수 사용
 시스템 환경 변수로 설정할 수도 있습니다:
@@ -101,6 +107,7 @@ VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 **🔒 보안 주의사항**: 
 - `.env`와 `.env.local` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.
 - **API 키는 절대 코드에 하드코딩하거나 Git에 커밋하지 마세요.**
+- 개발용 키는 팀 내부 문서나 비밀번호 관리자에서 확인하세요.
 - CI/CD에서는 GitHub Secrets를 사용합니다 (자동으로 환경 변수 주입).
 
 ### 3. CI/CD 설정 (GitHub Actions)
