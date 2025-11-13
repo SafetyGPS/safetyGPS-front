@@ -40,7 +40,7 @@
 | 분야            | 기술                                          |
 | --------------- | --------------------------------------------- |
 | Frontend        | **React**, **TypeScript**, **Vanila-extract** |
-| Package Manager | **pnpm**                                      |
+| Package Manager | **npm**                                       |
 | Version Control | **GitHub**                                    |
 | 지도 API        | **카카오 지도 API**                           |
 
@@ -139,7 +139,7 @@ npm run dev
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=Typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![vanilaextract](https://img.shields.io/badge/Vanilla_Extract-F786AD?style=flat-square&logo=vanillaextract&logoColor=white)
-![pnpm](https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white)
+![npm](https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white)
 
 - global vars 기반 편리한 스타일링 적용 및 타입 안정성 기능 사용을 위해 스타일링 도구로 `vanilla-extract`를 선택하였습니다.
 
