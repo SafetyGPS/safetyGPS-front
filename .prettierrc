@@ -10,6 +10,5 @@
   "useTabs": false,
   "plugins": ["@ianvs/prettier-plugin-sort-imports"],
   "importOrder": ["^react$", "^react-dom$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[../]", "^[./]"],
-  "importOrderSeparation": true,
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"]
 }
