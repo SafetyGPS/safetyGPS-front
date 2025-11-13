@@ -48,10 +48,9 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      // Import 정렬은 Prettier가 담당하므로 ESLint 규칙 비활성화
-      // Prettier 설정: react → react-dom → third-party → @/ → ../ → ./
+
       'import/order': 'off',
-      // 중복 import 방지는 유지
+
       'import/no-duplicates': 'error',
     },
   },
