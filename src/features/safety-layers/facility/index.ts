@@ -1,0 +1,1 @@
+export { useFacilityLayer } from './model';
