@@ -135,7 +135,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
             />
           </Space>
         }
-        bodyStyle={{ padding: 16 }}
+        styles={{ body: { padding: 16 } }}
       >
         <Space.Compact style={{ width: '100%' }}>
           <Input
