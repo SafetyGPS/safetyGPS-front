@@ -53,6 +53,7 @@ export interface MarkerOptions {
   position: LatLng;
   image?: MarkerImage;
   map?: Map;
+  title?: string;
 }
 
 export interface Marker {
