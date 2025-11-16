@@ -119,7 +119,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
             image: new kakao.MarkerImage(cctv, new kakao.Size(26, 26)),
-            title: label,
+            title: label ?? '',
             map: mapRef.current,
           }),
       );
@@ -131,7 +131,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
             image: new kakao.MarkerImage(light, new kakao.Size(22, 22)),
-            title: label,
+            title: label ?? '',
             map: mapRef.current,
           }),
       );
@@ -143,7 +143,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
             image: new kakao.MarkerImage(building, new kakao.Size(39, 39)),
-            title: label,
+            title: label ?? '',
             map: mapRef.current,
           }),
       );
