@@ -15,6 +15,20 @@ export interface MarkerImageOptions {
   spriteOrigin?: { x: number; y: number };
 }
 
+export interface KakaoEvent {
+  addListener(
+    target: unknown,
+    type: string,
+    handler: (...args: unknown[]) => void,
+  ): void;
+  removeListener(
+    target: unknown,
+    type: string,
+    handler: (...args: unknown[]) => void,
+  ): void;
+  trigger(target: unknown, type: string, ...args: unknown[]): void;
+}
+
 export interface KakaoMaps {
   maps: {
     LatLng: new (lat: number, lng: number) => LatLng;
