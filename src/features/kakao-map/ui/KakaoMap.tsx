@@ -3,7 +3,7 @@ import cctv from '../../../assets/icons/cctv.png';
 import building from '../../../assets/icons/security-center.png';
 import light from '../../../assets/icons/street-light.png';
 import type { MapMarkerData } from '../../../entities/map-layer';
-import type { DongBoundary } from '../../map-search/types';
+import type { DongBoundary } from '../../../features/map-search/types';
 import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '../../../types/kakao';
 
 export interface KakaoMapProps {
@@ -42,42 +42,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
   const maskRef = useRef<Polygon | null>(null);
   const readyCallbackRef = useRef(onKakaoReady);
 
-  const resizeMarkers = () => {
-    const map = mapRef.current;
-    const kakao = window.kakao?.maps;
-    if (!map || !kakao) return;
-
-    const level = map.getLevel();
-
-    let cctvSize = 26;
-    let lightSize = 22;
-    let policeSize = 40;
-
-    if (level === 5) {  // 250m
-      cctvSize -= 10;
-      lightSize -= 7;
-      policeSize -= 10;
-    }
-
-    if (level === 6) {  // 500m
-      cctvSize -= 15;
-      lightSize -= 15;
-      policeSize -= 20;
-    }
-
-    markersRef.current.cctv.forEach(marker => {
-      marker.setImage(new kakao.MarkerImage(cctv, new kakao.Size(cctvSize, cctvSize)));
-    });
-
-    markersRef.current.light.forEach(marker => {
-      marker.setImage(new kakao.MarkerImage(light, new kakao.Size(lightSize, lightSize)));
-    });
-
-    markersRef.current.police.forEach(marker => {
-      marker.setImage(new kakao.MarkerImage(building, new kakao.Size(policeSize, policeSize)));
-    });
-  };
-
   useEffect(() => {
     readyCallbackRef.current = onKakaoReady;
   }, [onKakaoReady]);
@@ -112,7 +76,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         const center = new kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
         const map = new kakao.maps.Map(ref.current, { center, level: 4 });
         mapRef.current = map;
-        kakao.maps.event.addListener(map, 'zoom_changed', resizeMarkers);
         console.log('✅ 지도 초기화 완료');
         readyCallbackRef.current?.(kakao);
       } catch (error) {
@@ -155,8 +118,8 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(cctv, new kakao.Size(25, 25)),
-            title: label,
+            image: new kakao.MarkerImage(cctv, new kakao.Size(32, 32)),
+            title: label ?? '',
             map: mapRef.current,
           }),
       );
@@ -167,7 +130,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(light, new kakao.Size(22, 22)),
+            image: new kakao.MarkerImage(light, new kakao.Size(34, 34)),
             title: label ?? '',
             map: mapRef.current,
           }),
@@ -179,8 +142,8 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(building, new kakao.Size(40, 40)),
-            title: label,
+            image: new kakao.MarkerImage(building, new kakao.Size(39, 39)),
+            title: label ?? '',
             map: mapRef.current,
           }),
       );
@@ -228,8 +191,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
     highlightPath.forEach((latLng) => bounds.extend(latLng));
     mapRef.current.setBounds(bounds);
   }, [selectedDong]);
-
-  
 
   return (
     <div

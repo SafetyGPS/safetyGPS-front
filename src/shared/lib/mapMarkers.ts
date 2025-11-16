@@ -1,4 +1,4 @@
-import type { MapMarkerData } from '@/entities/map-layer';
+import type { MapMarkerData } from '../../entities/map-layer';
 
 const toNumericCoordinate = (value?: number | string | null): number | null => {
   if (typeof value === 'number') {

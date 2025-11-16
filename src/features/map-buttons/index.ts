@@ -1,3 +1,3 @@
-export { MapButtons } from './components/MapButtons';
-export type { MapButtonsProps } from './components/MapButtons';
-export { default } from './components/MapButtons';
+export { MapButtons } from './ui/MapButtons';
+export type { MapButtonsProps } from './ui/MapButtons';
+export { default } from './ui/MapButtons';

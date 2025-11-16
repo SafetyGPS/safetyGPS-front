@@ -1,5 +1,5 @@
-import { sanitizeAddressText } from '@/shared/utils/address';
-import type { VWorldSearchItem } from '@/types/vworld';
+import { sanitizeAddressText } from '../../../shared/utils/address';
+import type { VWorldSearchItem } from '../../../types/vworld';
 import { parseFeatureToBoundary } from '../lib';
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
 

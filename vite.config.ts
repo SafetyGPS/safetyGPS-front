@@ -1,9 +1,6 @@
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
-import { fileURLToPath, URL } from 'node:url';
-
-const srcPath = fileURLToPath(new URL('./src', import.meta.url));
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -12,11 +9,6 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), vanillaExtractPlugin()],
-    resolve: {
-      alias: {
-        '@': srcPath,
-      },
-    },
     server: {
       port: devServerPort,
       proxy: {
