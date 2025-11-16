@@ -1,2 +1,2 @@
-export { MapSearch } from './components/MapSearch';
-export { default } from './components/MapSearch';
+export { MapSearch } from './ui/MapSearch';
+export { default } from './ui/MapSearch';
