@@ -3,7 +3,7 @@ import cctv from '../../../assets/icons/cctv.png';
 import building from '../../../assets/icons/security-center.png';
 import light from '../../../assets/icons/street-light.png';
 import type { MapMarkerData } from '../../../entities/map-layer';
-import type { DongBoundary } from '../../map-search/types';
+import type { DongBoundary } from '../../../features/map-search/types';
 import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '../../../types/kakao';
 
 export interface KakaoMapProps {
@@ -118,7 +118,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(cctv, new kakao.Size(26, 26)),
+            image: new kakao.MarkerImage(cctv, new kakao.Size(32, 32)),
             title: label ?? '',
             map: mapRef.current,
           }),
@@ -130,7 +130,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(light, new kakao.Size(22, 22)),
+            image: new kakao.MarkerImage(light, new kakao.Size(34, 34)),
             title: label ?? '',
             map: mapRef.current,
           }),

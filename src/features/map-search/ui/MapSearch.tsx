@@ -1,7 +1,7 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { AimOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Empty, Input, List, message, Space, Tag, Typography } from 'antd';
-import type { KakaoMaps } from '@/types/kakao';
+import type { KakaoMaps } from '../../../types/kakao';
 import { fetchVWorldBoundary, searchDong } from '../api';
 import { OUTER_WRAPPER_STYLE } from '../constants';
 import type { DongBoundary, DongSearchResult } from '../types';
@@ -135,7 +135,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
             />
           </Space>
         }
-        bodyStyle={{ padding: 16 }}
+        styles={{ body: { padding: 16 } }}
       >
         <Space.Compact style={{ width: '100%' }}>
           <Input

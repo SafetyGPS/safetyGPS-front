@@ -1,4 +1,5 @@
-import type { VWorldSearchItem } from '@/types/vworld';
+import { sanitizeAddressText } from '../../../shared/utils/address';
+import type { VWorldSearchItem } from '../../../types/vworld';
 import { parseFeatureToBoundary } from '../lib';
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
 
@@ -40,7 +41,8 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     .map((token) => token.replace(/(?:동|면|읍)$/u, '').trim());
 
   items.forEach((item: VWorldSearchItem) => {
-    const title = item.title || '';
+    const title = sanitizeAddressText(item.title || '');
+    if (!title) return;
 
     if (!title.includes('경기도')) return;
 
@@ -189,7 +191,12 @@ export const fetchVWorldBoundary = async (
       const boundary = parseFeatureToBoundary(matchedFeature, dongName, center, bCode);
 
       if (boundary) {
-        return boundary;
+        const normalizedAddress =
+          sanitizeAddressText(fullAddress) || sanitizeAddressText(boundary.name) || boundary.name;
+        return {
+          ...boundary,
+          address: normalizedAddress,
+        };
       }
 
       // 파싱 실패 시 재시도
