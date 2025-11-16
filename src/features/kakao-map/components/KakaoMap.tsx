@@ -142,7 +142,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(building, new kakao.Size(41, 41)),
+            image: new kakao.MarkerImage(building, new kakao.Size(39, 39)),
             title: label,
             map: mapRef.current,
           }),
