@@ -29,6 +29,7 @@ export interface KakaoMaps {
     services: {
       Geocoder: new () => Geocoder;
     };
+    event: KakaoEvent;
   };
 }
 
@@ -47,6 +48,7 @@ export interface Map {
   setLevel(level: number): void;
   setBounds(bounds: LatLngBounds): void;
   relayout(): void;
+  getLevel(): number;
 }
 
 export interface MarkerOptions {
@@ -59,6 +61,7 @@ export interface MarkerOptions {
 export interface Marker {
   setMap(map: Map | null): void;
   setPosition(position: LatLng): void;
+  setImage(image: MarkerImage): void;
 }
 
 // MarkerImage는 생성자로만 사용되며, 인스턴스 속성은 직접 접근 불가

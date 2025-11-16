@@ -118,7 +118,7 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
         ({ lat, lng, label }) =>
           new kakao.Marker({
             position: new kakao.LatLng(lat, lng),
-            image: new kakao.MarkerImage(cctv, new kakao.Size(26, 26)),
+            image: new kakao.MarkerImage(cctv, new kakao.Size(25, 25)),
             title: label,
             map: mapRef.current,
           }),
@@ -191,6 +191,8 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
     highlightPath.forEach((latLng) => bounds.extend(latLng));
     mapRef.current.setBounds(bounds);
   }, [selectedDong]);
+
+  
 
   return (
     <div
