@@ -1,1 +1,1 @@
-export { themeClass } from './styles/theme.css.ts';
+export { themeClass } from './styles/theme.css';
