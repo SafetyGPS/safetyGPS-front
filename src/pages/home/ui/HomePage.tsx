@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { message } from 'antd';
-import { KakaoMap } from '@/features/kakao-map';
-import { MapButtons } from '@/features/map-buttons';
-import { MapSearch } from '@/features/map-search';
-import { useCctvLayer, useFacilityLayer, useSecurityLightLayer } from '@/features/safety-layers';
-import type { DongBoundary } from '@/features/map-search/types';
-import { extractAddressParts } from '@/shared/utils/address';
-import type { KakaoMaps } from '@/types/kakao';
+import { KakaoMap } from '../../../features/kakao-map';
+import { MapButtons } from '../../../features/map-buttons';
+import { MapSearch } from '../../../features/map-search';
+import type { DongBoundary } from '../../../features/map-search/types';
+import { useCctvLayer, useFacilityLayer, useSecurityLightLayer } from '../../../features/safety-layers';
+import { extractAddressParts } from '../../../shared/utils/address';
+import type { KakaoMaps } from '../../../types/kakao';
 
 type ActiveState = { cctv: boolean; light: boolean; police: boolean };
 type LayerKey = keyof ActiveState;
