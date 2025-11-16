@@ -15,6 +15,20 @@ export interface MarkerImageOptions {
   spriteOrigin?: { x: number; y: number };
 }
 
+export interface KakaoEvent {
+  addListener(
+    target: unknown,
+    type: string,
+    handler: (...args: unknown[]) => void,
+  ): void;
+  removeListener(
+    target: unknown,
+    type: string,
+    handler: (...args: unknown[]) => void,
+  ): void;
+  trigger(target: unknown, type: string, ...args: unknown[]): void;
+}
+
 export interface KakaoMaps {
   maps: {
     LatLng: new (lat: number, lng: number) => LatLng;
@@ -29,6 +43,7 @@ export interface KakaoMaps {
     services: {
       Geocoder: new () => Geocoder;
     };
+    event: KakaoEvent;
   };
 }
 
@@ -47,6 +62,7 @@ export interface Map {
   setLevel(level: number): void;
   setBounds(bounds: LatLngBounds): void;
   relayout(): void;
+  getLevel(): number;
 }
 
 export interface MarkerOptions {
@@ -59,6 +75,7 @@ export interface MarkerOptions {
 export interface Marker {
   setMap(map: Map | null): void;
   setPosition(position: LatLng): void;
+  setImage(image: MarkerImage): void;
 }
 
 // MarkerImage는 생성자로만 사용되며, 인스턴스 속성은 직접 접근 불가
