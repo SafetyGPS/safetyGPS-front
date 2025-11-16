@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import cctv from '@/assets/icons/cctv.png';
-import building from '@/assets/icons/security-center.png';
-import light from '@/assets/icons/street-light.png';
-import type { MapMarkerData } from '@/entities/map-layer';
-import type { DongBoundary } from '@/features/map-search/types';
-import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '@/types/kakao';
+import cctv from '../../../assets/icons/cctv.png';
+import building from '../../../assets/icons/security-center.png';
+import light from '../../../assets/icons/street-light.png';
+import type { MapMarkerData } from '../../../entities/map-layer';
+import type { DongBoundary } from '../../map-search/types';
+import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '../../../types/kakao';
 
 export interface KakaoMapProps {
   active: { cctv: boolean; light: boolean; police: boolean };
