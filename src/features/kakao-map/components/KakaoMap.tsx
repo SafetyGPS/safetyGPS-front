@@ -3,8 +3,8 @@ import cctv from '../../../assets/icons/cctv.png';
 import building from '../../../assets/icons/security-center.png';
 import light from '../../../assets/icons/street-light.png';
 import type { MapMarkerData } from '../../../entities/map-layer';
-import type { DongBoundary } from '../../map-search/types';
 import type { KakaoMaps, Map as KakaoMapType, Marker, Polygon } from '../../../types/kakao';
+import type { DongBoundary } from '../../map-search/types';
 
 export interface KakaoMapProps {
   active: { cctv: boolean; light: boolean; police: boolean };
@@ -53,27 +53,29 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
     let lightSize = 22;
     let policeSize = 40;
 
-    if (level === 5) {  // 250m
+    if (level === 5) {
+      // 250m
       cctvSize -= 10;
       lightSize -= 7;
       policeSize -= 10;
     }
 
-    if (level === 6) {  // 500m
+    if (level === 6) {
+      // 500m
       cctvSize -= 15;
       lightSize -= 15;
       policeSize -= 20;
     }
 
-    markersRef.current.cctv.forEach(marker => {
+    markersRef.current.cctv.forEach((marker) => {
       marker.setImage(new kakao.MarkerImage(cctv, new kakao.Size(cctvSize, cctvSize)));
     });
 
-    markersRef.current.light.forEach(marker => {
+    markersRef.current.light.forEach((marker) => {
       marker.setImage(new kakao.MarkerImage(light, new kakao.Size(lightSize, lightSize)));
     });
 
-    markersRef.current.police.forEach(marker => {
+    markersRef.current.police.forEach((marker) => {
       marker.setImage(new kakao.MarkerImage(building, new kakao.Size(policeSize, policeSize)));
     });
   };
@@ -228,8 +230,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
     highlightPath.forEach((latLng) => bounds.extend(latLng));
     mapRef.current.setBounds(bounds);
   }, [selectedDong]);
-
-  
 
   return (
     <div

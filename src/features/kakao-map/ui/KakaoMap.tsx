@@ -53,27 +53,29 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
     let lightSize = 22;
     let policeSize = 39;
 
-    if (level === 5) {  // 250m
+    if (level === 5) {
+      // 250m
       cctvSize -= 10;
       lightSize -= 7;
       policeSize -= 10;
     }
 
-    if (level === 6) {  // 500m
+    if (level === 6) {
+      // 500m
       cctvSize -= 15;
       lightSize -= 15;
       policeSize -= 20;
     }
 
-    markersRef.current.cctv.forEach(marker => {
+    markersRef.current.cctv.forEach((marker) => {
       marker.setImage(new kakao.MarkerImage(cctv, new kakao.Size(cctvSize, cctvSize)));
     });
 
-    markersRef.current.light.forEach(marker => {
+    markersRef.current.light.forEach((marker) => {
       marker.setImage(new kakao.MarkerImage(light, new kakao.Size(lightSize, lightSize)));
     });
 
-    markersRef.current.police.forEach(marker => {
+    markersRef.current.police.forEach((marker) => {
       marker.setImage(new kakao.MarkerImage(building, new kakao.Size(policeSize, policeSize)));
     });
   };

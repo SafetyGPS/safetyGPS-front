@@ -16,16 +16,8 @@ export interface MarkerImageOptions {
 }
 
 export interface KakaoEvent {
-  addListener(
-    target: unknown,
-    type: string,
-    handler: (...args: unknown[]) => void,
-  ): void;
-  removeListener(
-    target: unknown,
-    type: string,
-    handler: (...args: unknown[]) => void,
-  ): void;
+  addListener(target: unknown, type: string, handler: (...args: unknown[]) => void): void;
+  removeListener(target: unknown, type: string, handler: (...args: unknown[]) => void): void;
   trigger(target: unknown, type: string, ...args: unknown[]): void;
 }
 
