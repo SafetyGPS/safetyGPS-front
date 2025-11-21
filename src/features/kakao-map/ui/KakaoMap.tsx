@@ -13,7 +13,6 @@ export interface KakaoMapProps {
   cctvLocations?: MapMarkerData[];
   securityLightLocations?: MapMarkerData[];
   facilityLocations?: MapMarkerData[];
-  isModalOpen?: boolean;
 }
 
 export const DEFAULT_CENTER = { lat: 37.29396045, lng: 127.025977 };
@@ -31,7 +30,6 @@ export const KakaoMap: React.FC<KakaoMapProps> = ({
   cctvLocations = [],
   securityLightLocations = [],
   facilityLocations = [],
-  isModalOpen,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<KakaoMapType | null>(null);

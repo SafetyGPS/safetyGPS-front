@@ -116,7 +116,6 @@ export const HomePage: React.FC = () => {
                 cctvLocations={cctvMarkers}
                 securityLightLocations={securityLightMarkers}
                 facilityLocations={facilityMarkers}
-                isModalOpen={isRiskModalOpen}
             />
 
             <MapButtons
