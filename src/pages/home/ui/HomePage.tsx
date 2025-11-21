@@ -12,7 +12,7 @@ import {
 import { extractAddressParts } from '../../../shared/utils/address';
 import type { KakaoMaps } from '../../../types/kakao';
 
-import RiskScoreModal from '../../../features/risk-modal/RiskScoreModal';
+import { RiskScoreModal } from '../../../features/risk-modal/RiskScoreModal';
 
 type ActiveState = { cctv: boolean; light: boolean; police: boolean };
 type LayerKey = keyof ActiveState;
