@@ -6,12 +6,15 @@ import {
   VideoCameraOutlined,
 } from '@ant-design/icons';
 import { FloatButton } from 'antd';
+import riskMarker from '../../../assets/icons/gps.png';
 
 export interface MapButtonsProps {
   active: { cctv: boolean; light: boolean; police: boolean };
   setActive: React.Dispatch<
     React.SetStateAction<{ cctv: boolean; light: boolean; police: boolean }>
   >;
+  /** 위험점수 모달을 열기 위한 콜백 (HomePage에서 내려줄 예정) */
+  onOpenRiskModal?: () => void;
 }
 
 export const TRIGGER_SIZE = 56;
@@ -19,7 +22,11 @@ export const CHILD_SIZE = 48;
 export const GAP = 2;
 export const ICON_DEFAULT_COLOR = '#595959';
 
-export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive }) => {
+export const MapButtons: React.FC<MapButtonsProps> = ({
+  active,
+  setActive,
+  onOpenRiskModal,
+}) => {
   const toggle = (key: 'cctv' | 'light' | 'police') => {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -40,6 +47,7 @@ export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive }) => 
       }}
       type="primary"
     >
+      {/* CCTV */}
       <FloatButton
         tooltip={{ title: 'CCTV', placement: 'right' }}
         icon={
@@ -58,6 +66,7 @@ export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive }) => 
         onClick={() => toggle('cctv')}
       />
 
+      {/* 가로등 */}
       <FloatButton
         tooltip={{ title: '가로등', placement: 'right' }}
         icon={
@@ -76,6 +85,7 @@ export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive }) => 
         onClick={() => toggle('light')}
       />
 
+      {/* 치안 센터 */}
       <FloatButton
         tooltip={{ title: '치안 센터', placement: 'right' }}
         icon={
@@ -92,6 +102,30 @@ export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive }) => 
           opacity: active.police ? 0.85 : 1,
         }}
         onClick={() => toggle('police')}
+      />
+
+      {/* 🔴 위험점수 버튼 */}
+      <FloatButton
+        tooltip={{ title: '위험점수', placement: 'right' }}
+        icon={
+          <img
+            src={riskMarker}
+            alt="위험점수"
+            style={{ width: 22, height: 22, display: 'block' }}
+          />
+        }
+        style={{
+          width: CHILD_SIZE,
+          height: CHILD_SIZE,
+          marginTop: GAP,
+          backgroundColor: '#ffe6e6', // 연한 빨간색 배경
+          border: '1px solid #ffcccc',
+        }}
+        onClick={() => {
+          if (onOpenRiskModal) {
+            onOpenRiskModal();
+          }
+        }}
       />
     </FloatButton.Group>
   );
