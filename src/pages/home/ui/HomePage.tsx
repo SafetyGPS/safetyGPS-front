@@ -91,8 +91,13 @@ export const HomePage: React.FC = () => {
         prevActiveRef.current = active;
     }, [active, messageApi, selectedDong]);
 
-    // ❗ 임시 점수 (나중에 계산 가능)
-    const riskScore = 65;
+    // ★ 테스트용: 위험점수 90점 (안전)
+    const riskScore = 90;
+
+    // ★ 테스트용: CCTV/가로등/치안센터 개수 고정
+    const testCctvCount = 30;
+    const testLightCount = 100;
+    const testPoliceCount = 2;
 
     return (
         <div
@@ -104,7 +109,6 @@ export const HomePage: React.FC = () => {
         >
             {contextHolder}
 
-            {/* 지도 */}
             <KakaoMap
                 active={active}
                 selectedDong={selectedDong}
@@ -112,9 +116,9 @@ export const HomePage: React.FC = () => {
                 cctvLocations={cctvMarkers}
                 securityLightLocations={securityLightMarkers}
                 facilityLocations={facilityMarkers}
+                isModalOpen={isRiskModalOpen}
             />
 
-            {/* 버튼 */}
             <MapButtons
                 active={active}
                 setActive={setActive}
@@ -127,18 +131,16 @@ export const HomePage: React.FC = () => {
                 }}
             />
 
-            {/* 검색 */}
             <MapSearch kakao={kakaoObj} onSelectDong={setSelectedDong} />
 
-            {/* 🔥 위험점수 모달 */}
             <RiskScoreModal
                 isOpen={isRiskModalOpen}
                 onClose={() => setIsRiskModalOpen(false)}
-                dongName={selectedDong?.name ?? ''}
+                dongName={selectedDong?.name ?? '연무동'}
                 score={riskScore}
-                cctvCount={cctvMarkers?.length ?? 0}
-                lightCount={securityLightMarkers?.length ?? 0}
-                policeCount={facilityMarkers?.length ?? 0}
+                cctvCount={testCctvCount}
+                lightCount={testLightCount}
+                policeCount={testPoliceCount}
             />
         </div>
     );

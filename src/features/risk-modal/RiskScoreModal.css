@@ -9,27 +9,25 @@
     z-index: 5000;
 }
 
-/* Container */
 .risk-modal-container {
     background: #ffffff;
     width: 680px;
     max-width: 92%;
     padding: 24px;
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-    animation: fadeIn 0.25s ease-out;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    animation: fadeIn .25s ease-out;
+}
+
+.risk-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .risk-modal-title {
     font-size: 24px;
     font-weight: 700;
-}
-
-/* Header */
-.risk-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .risk-close-btn {
@@ -39,28 +37,25 @@
     cursor: pointer;
 }
 
-/* Score Section */
+/* --- SCORE SECTION --- */
+
 .risk-score-section {
     display: flex;
     margin-top: 20px;
     align-items: center;
 }
 
-.risk-score-left {
-    display: flex;
-    align-items: center;
-    margin-right: 16px;
-}
-
-.risk-warning-icon {
-    font-size: 48px;
+.warning-icon-img {
+    width: 58px;
+    height: 58px;
 }
 
 .risk-score-main {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 8px;
     position: relative;
+    margin-left: 10px;
 }
 
 .risk-score-number {
@@ -70,44 +65,44 @@
 
 .risk-score-unit {
     font-size: 24px;
-    color: #666666;
+    color: #666;
 }
 
-/* Tooltip */
+/* i icon 위치 ↑↑ */
 .risk-info-tooltip {
     position: relative;
-    cursor: default;
-    margin-left: 6px;
+    transform: translateY(-25px); /* 숫자 상단과 정렬 */
 }
 
 .risk-info-icon {
     font-size: 18px;
-    color: #666666;
+    color: #666;
+    cursor: pointer;
 }
 
 .risk-info-hover {
     position: absolute;
-    top: 28px;
-    left: -40px;
-    width: 260px;
-    background: #ffffff;
+    top: 30px;
+    left: -80px;
+    width: 270px;
+    background: #fff;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #d9d9d9;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     font-size: 12px;
     opacity: 0;
-    pointer-events: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    line-height: 1.5;
-    white-space: normal;
     transition: 0.15s ease;
+    line-height: 1.5;
+    pointer-events: none;
+    white-space: normal;
 }
 
 .risk-info-tooltip:hover .risk-info-hover {
     opacity: 1;
 }
 
-/* Legend (위험/주의/안전) */
+/* --- STATUS DOTS --- */
 .risk-score-labels {
     margin-left: auto;
     display: flex;
@@ -120,7 +115,6 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    color: #555555;
 }
 
 .dot {
@@ -129,27 +123,20 @@
     border-radius: 50%;
 }
 
-.dot.red {
-    background-color: #ff4d4f;
-}
+.dot.red { background: #ff4d4f; }
+.dot.yellow { background: #faad14; }
+.dot.green { background: #52c41a; }
 
-.dot.yellow {
-    background-color: #faad14;
-}
-
-.dot.green {
-    background-color: #52c41a;
-}
-
-/* Description */
+/* --- DESCRIPTION --- */
 .risk-description {
     margin-top: 22px;
-    color: #555555;
-    line-height: 1.6;
+    color: #555;
     font-size: 14px;
+    line-height: 1.6;
 }
 
-/* Rating + 소통하기 버튼 */
+/* --- STAR RATING + BUTTON --- */
+
 .risk-rating-section {
     display: flex;
     justify-content: space-between;
@@ -171,7 +158,7 @@
 .risk-star {
     font-size: 24px;
     cursor: pointer;
-    color: #aaaaaa;
+    color: #aaa;
 }
 
 .risk-star.filled {
@@ -180,31 +167,33 @@
 
 .risk-rating-text {
     font-size: 14px;
-    color: #666666;
+    color: #666;
 }
 
-/* 소통하기 버튼 */
 .risk-feedback-btn {
-    border: 1px solid #d9d9d9;
-    background-color: #f5f5f5;
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    color: #555555;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    justify-content: center;
-    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 13px; /* 글씨 작게 수정 */
+    transition: .15s ease;
 }
 
 .risk-feedback-btn:hover {
-    background-color: #e9e9e9;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
+    background: #ededed;
 }
 
-/* Cards */
+.comment-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* --- BOTTOM CARDS --- */
+
 .risk-card-container {
     display: flex;
     gap: 16px;
@@ -216,12 +205,12 @@
     padding: 18px;
     border-radius: 16px;
     text-align: center;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: .15s ease;
 }
 
 .risk-card:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .risk-card-icon {
@@ -230,22 +219,15 @@
     margin-bottom: 10px;
 }
 
-.card-red {
-    background: #ffe6e6;
-}
+.card-red { background: #ffe6e6; }
+.card-yellow { background: #fff7e6; }
+.card-green { background: #ecffec !important; } /* 연두색 */
 
-.card-yellow {
-    background: #fff7e6;
-}
-
-.card-green {
-    background: #e6fffb;
-}
-
+/* card titles & numbers */
 .risk-card-title {
+    font-size: 14px;
     font-weight: bold;
     margin-bottom: 6px;
-    font-size: 14px;
 }
 
 .risk-card-count {
@@ -253,26 +235,12 @@
     font-weight: 700;
 }
 
-.risk-card-count.red {
-    color: #ff4d4f;
-}
+.risk-card-count.red { color: #ff4d4f; }
+.risk-card-count.yellow { color: #faad14; }
+.risk-card-count.green { color: #52c41a; }
 
-.risk-card-count.yellow {
-    color: #faad14;
-}
-
-.risk-card-count.green {
-    color: #52c41a;
-}
-
-/* Animations */
+/* animation */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.96);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
 }
