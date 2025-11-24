@@ -81,7 +81,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       }
 
       messageApi.loading({
-        content: `${item.name} 경계를 불러오는 중... (최대 10초)`,
+        content: `${item.name} 경계를 불러오는 중...`,
         key: 'loading',
         duration: 0,
       });

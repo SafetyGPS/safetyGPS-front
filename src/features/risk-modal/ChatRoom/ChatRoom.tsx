@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CloseOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
 import './ChatRoom.css';
 import type { Feedback } from './useChatRoom';
@@ -24,6 +24,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
   onSubmit,
   onClose,
 }) => {
+  const [hoverRating, setHoverRating] = useState(0);
+  const displayRating = hoverRating || feedbackRating;
+
   const displayRatingLabel = feedbacks.length ? averageRating.toFixed(1) : '0.0';
 
   return (
@@ -64,14 +67,21 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
       <div className="feedback-rating-row">
         <span>별점 선택</span>
-        <div className="feedback-rating-stars">
-          {[1, 2, 3, 4, 5].map((star) =>
-            star <= feedbackRating ? (
-              <StarFilled key={star} className="feedback-star filled" onClick={() => onChangeRating(star)} />
-            ) : (
-              <StarOutlined key={star} className="feedback-star" onClick={() => onChangeRating(star)} />
-            ),
-          )}
+        <div className="feedback-rating-stars" role="radiogroup" aria-label="별점 선택">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              className={`feedback-star-btn${star <= displayRating ? ' filled' : ''}`}
+              onClick={() => onChangeRating(star)}
+              aria-label={`${star}점 선택`}
+              aria-pressed={star <= feedbackRating}
+              onMouseEnter={() => setHoverRating(star)}
+              onMouseLeave={() => setHoverRating(0)}
+            >
+              {star <= displayRating ? <StarFilled /> : <StarOutlined />}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -81,6 +91,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
           value={feedbackComment}
           onChange={(event) => onChangeComment(event.target.value)}
           placeholder="댓글을 입력해주세요..."
+          aria-label="댓글 입력"
         />
         <button
           className="feedback-submit-btn"
