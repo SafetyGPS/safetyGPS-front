@@ -34,7 +34,7 @@ export const useChatRoom = () => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>(INITIAL_FEEDBACKS);
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState('');
-  const [showChat, setShowChat] = useState(true);
+  const [showChat, setShowChat] = useState(false);
 
   const averageRating = useMemo(() => {
     if (!feedbacks.length) return 0;

@@ -150,7 +150,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 18px;
+    margin-top: 25px;
 }
 
 .risk-rating-left {
@@ -206,15 +206,21 @@
 .risk-card-container {
     display: flex;
     gap: 16px;
-    margin-top: 28px;
+    margin-top: 40px;
 }
 
 .risk-card {
     flex: 1;
-    padding: 18px;
-    border-radius: 16px;
+    min-height: 220px;
+    padding: 20px 18px;
+    border-radius: 18px;
     text-align: center;
     transition: .15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .risk-card:hover {
@@ -223,9 +229,8 @@
 }
 
 .risk-card-icon {
-    width: 46px;
-    height: 46px;
-    margin-bottom: 10px;
+    width: 52px;
+    height: 52px;
 }
 
 .card-red { background: #ffe6e6; }
