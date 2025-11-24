@@ -2,6 +2,7 @@
 export interface VWorldSearchItem {
   id: string;
   title: string;
+  geometry?: string;
   point: {
     x: string;
     y: string;

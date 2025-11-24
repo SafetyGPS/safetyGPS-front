@@ -140,3 +140,42 @@ export const parseFeatureToBoundary = (
     return null;
   }
 };
+
+/**
+ * Convert raw coordinates (polygon or multipolygon) from geometry API into DongBoundary.
+ */
+export const parseCoordinatesToBoundary = (
+  coordinates: number[][] | number[][][] | number[][][][],
+  dongName: string,
+  center: LatLngLiteral,
+  bCode: string,
+): import('../types').DongBoundary | null => {
+  try {
+    const anyCoords = coordinates as unknown as number[][][][];
+    const multiCandidate = anyCoords?.[0]?.[0]?.[0];
+    const polygonCandidate = (coordinates as unknown as number[][][])?.[0]?.[0];
+
+    const isMultiPolygon = Array.isArray(multiCandidate) && typeof multiCandidate?.[0] === 'number';
+    const isPolygon =
+      !isMultiPolygon && Array.isArray(polygonCandidate) && typeof polygonCandidate?.[0] === 'number';
+
+    const geometry: GeoJSONGeometry | null = isMultiPolygon
+      ? { type: 'MultiPolygon', coordinates: coordinates as number[][][][] }
+      : isPolygon
+        ? { type: 'Polygon', coordinates: coordinates as number[][][] }
+        : null;
+
+    if (!geometry) {
+      return null;
+    }
+
+    return parseFeatureToBoundary(
+      { type: 'Feature', geometry, properties: { EMD_KOR_NM: dongName, EMD_CD: bCode } },
+      dongName,
+      center,
+      bCode,
+    );
+  } catch {
+    return null;
+  }
+};

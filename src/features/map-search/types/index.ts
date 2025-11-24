@@ -13,6 +13,7 @@ export interface DongBoundary {
   path: LatLngLiteral[];
   source: BoundarySource;
   bCode?: string;
+  geometryUrl?: string;
 }
 
 export interface DongSearchResult {
@@ -21,4 +22,5 @@ export interface DongSearchResult {
   fullAddress: string;
   center: LatLngLiteral;
   bCode?: string;
+  geometryUrl?: string;
 }
