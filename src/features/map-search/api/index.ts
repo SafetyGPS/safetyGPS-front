@@ -1,6 +1,6 @@
 import { sanitizeAddressText } from '../../../shared/utils/address';
 import type { VWorldSearchItem } from '../../../types/vworld';
-import { parseFeatureToBoundary } from '../lib';
+import { parseCoordinatesToBoundary, parseFeatureToBoundary } from '../lib';
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
 
 /**
@@ -108,6 +108,7 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
       fullAddress: title,
       center,
       bCode: item.id,
+      geometryUrl: typeof item.geometry === 'string' ? item.geometry : undefined,
     });
   });
 
@@ -118,6 +119,57 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
  * 지연 함수 (재시도 간격)
  */
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+type GeometryCoords = number[][] | number[][][] | number[][][][];
+
+interface GeometryCoordsResponse {
+  coordinates?: GeometryCoords;
+}
+
+/**
+ * Backend geometry API (geometryUrl -> coordinates) lookup
+ */
+export const fetchGeometryBoundary = async (
+  geometryUrl: string,
+  dongName: string,
+  fullAddress: string,
+  center: LatLngLiteral,
+  bCode: string,
+): Promise<DongBoundary | null> => {
+  if (!geometryUrl) return null;
+
+  try {
+    const encodedUrl = encodeURIComponent(geometryUrl);
+    const apiUrl = `/api/geometry/coords?geometryUrl=${encodedUrl}`;
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data: GeometryCoordsResponse = await response.json();
+    if (!data?.coordinates || !Array.isArray(data.coordinates)) {
+      return null;
+    }
+
+    const boundary = parseCoordinatesToBoundary(data.coordinates, dongName, center, bCode);
+
+    if (!boundary) {
+      return null;
+    }
+
+    const normalizedAddress =
+      sanitizeAddressText(fullAddress) || sanitizeAddressText(boundary.name) || boundary.name;
+
+    return {
+      ...boundary,
+      address: normalizedAddress,
+      geometryUrl,
+    };
+  } catch {
+    return null;
+  }
+};
 
 /**
  * WFS API로 동 경계선 데이터 가져오기 (재시도 로직 포함)
