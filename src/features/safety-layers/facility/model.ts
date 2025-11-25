@@ -36,13 +36,14 @@ export const useFacilityLayer = ({
     const load = async () => {
       try {
         const response = await fetchFacilities(sigunNm, gu, dong);
-        if (response.length === 0) {
-          syncFacilityData(sigunNm, gu, dong);
-          const response = await fetchFacilities(sigunNm, gu, dong);
+        let data = response;
+        if (data.length === 0) {
+          await syncFacilityData(sigunNm, gu, dong);
+          data = await fetchFacilities(sigunNm, gu, dong);
         }
         if (cancelled) return;
 
-        const items = response
+        const items = data
           .map((item) => buildMarker(item.latitude, item.longitude, item.institutionName))
           .filter((marker): marker is MapMarkerData => Boolean(marker));
 

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { MapMarkerData } from '../../../entities/map-layer';
 import { buildMarker } from '../../../shared/lib/mapMarkers';
-import { syncCctvData } from './api';
-import { fetchCctvLocations } from './api';
+import { fetchCctvLocations, syncCctvData } from './api';
 
 export interface UseCctvLayerOptions {
   active: boolean;
