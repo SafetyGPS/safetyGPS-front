@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { CloseOutlined, InfoCircleOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
 import './RiskScoreModal.css';
-
-import modalCctv from '../../assets/icons/modal-cctv.png';
-import modalLight from '../../assets/icons/modal-light.png';
-import modalCenter from '../../assets/icons/modal-center.png';
-import warningIcon from '../../assets/icons/warning.png';
 import commentIcon from '../../assets/icons/comment.png';
+import modalCctv from '../../assets/icons/modal-cctv.png';
+import modalCenter from '../../assets/icons/modal-center.png';
+import modalLight from '../../assets/icons/modal-light.png';
+import warningIcon from '../../assets/icons/warning.png';
 import ChatRoom from './ChatRoom/ChatRoom';
 import useChatRoom from './ChatRoom/useChatRoom';
 

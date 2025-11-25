@@ -19,7 +19,6 @@ export const MapSearch: React.FC<MapSearchProps> = ({
   className,
   style,
 }) => {
-
   void _kakao;
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,8 +54,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
 
       setResults(searchResults);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : '검색 중 오류가 발생했습니다.';
+      const errorMessage = error instanceof Error ? error.message : '검색 중 오류가 발생했습니다.';
 
       if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
         messageApi.error(

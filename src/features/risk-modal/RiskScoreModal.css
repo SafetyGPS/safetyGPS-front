@@ -1,260 +1,284 @@
 .risk-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 5000;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
 }
 
 .risk-modal-container {
-    background: #ffffff;
-    width: 680px;
-    max-width: 92%;
-    padding: 20px 20px 16px;
-    border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    animation: fadeIn .25s ease-out;
-    position: relative;
-    min-height: 520px;
+  background: #ffffff;
+  width: 680px;
+  max-width: 92%;
+  padding: 20px 20px 16px;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.25s ease-out;
+  position: relative;
+  min-height: 520px;
 }
 
 .risk-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .header-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .risk-modal-title {
-    font-size: 24px;
-    font-weight: 700;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .risk-close-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 /* --- SCORE SECTION --- */
 
 .risk-score-section {
-    display: flex;
-    margin-top: 20px;
-    align-items: center;
+  display: flex;
+  margin-top: 20px;
+  align-items: center;
 }
 
 .warning-icon-img {
-    width: 58px;
-    height: 58px;
+  width: 58px;
+  height: 58px;
 }
 
 .risk-score-main {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    position: relative;
-    margin-left: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  position: relative;
+  margin-left: 10px;
 }
 
 .risk-score-number {
-    font-size: 56px;
-    font-weight: bold;
+  font-size: 56px;
+  font-weight: bold;
 }
 
 .risk-score-unit {
-    font-size: 24px;
-    color: #666;
+  font-size: 24px;
+  color: #666;
 }
 
 /* i icon 위치 ↑↑ */
 .risk-info-tooltip {
-    position: relative;
-    transform: translateY(-25px); /* 숫자 상단과 정렬 */
+  position: relative;
+  transform: translateY(-25px); /* 숫자 상단과 정렬 */
 }
 
 .risk-info-icon {
-    font-size: 18px;
-    color: #666;
-    cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
 }
 
 .risk-info-hover {
-    position: absolute;
-    top: 30px;
-    left: -80px;
-    width: 270px;
-    background: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #d9d9d9;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    font-size: 12px;
-    opacity: 0;
-    transition: 0.15s ease;
-    line-height: 1.5;
-    pointer-events: none;
-    white-space: normal;
+  position: absolute;
+  top: 30px;
+  left: -80px;
+  width: 270px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  opacity: 0;
+  transition: 0.15s ease;
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: normal;
 }
 
 .risk-info-tooltip:hover .risk-info-hover {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* --- STATUS DOTS --- */
 .risk-score-labels {
-    margin-left: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .risk-score-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
 }
 
 .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
 }
 
-.dot.red { background: #ff4d4f; }
-.dot.yellow { background: #faad14; }
-.dot.green { background: #52c41a; }
+.dot.red {
+  background: #ff4d4f;
+}
+.dot.yellow {
+  background: #faad14;
+}
+.dot.green {
+  background: #52c41a;
+}
 
 /* --- DESCRIPTION --- */
 .risk-description {
-    margin-top: 22px;
-    color: #555;
-    font-size: 14px;
-    line-height: 1.6;
+  margin-top: 22px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 /* --- STAR RATING + BUTTON --- */
 
 .risk-rating-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
 }
 
 .risk-rating-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .risk-stars {
-    display: flex;
-    gap: 4px;
+  display: flex;
+  gap: 4px;
 }
 
 .risk-star {
-    font-size: 24px;
-    cursor: pointer;
-    color: #aaa;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
 }
 
 .risk-star.filled {
-    color: #fadb14;
+  color: #fadb14;
 }
 
 .risk-rating-text {
-    font-size: 14px;
-    color: #666;
+  font-size: 14px;
+  color: #666;
 }
 
 .risk-feedback-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 999px;
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    font-size: 13px; /* 글씨 작게 수정 */
-    transition: .15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 13px; /* 글씨 작게 수정 */
+  transition: 0.15s ease;
 }
 
 .risk-feedback-btn:hover {
-    background: #ededed;
+  background: #ededed;
 }
 
 .comment-icon {
-    width: 18px;
-    height: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 /* --- BOTTOM CARDS --- */
 
 .risk-card-container {
-    display: flex;
-    gap: 16px;
-    margin-top: 40px;
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
 }
 
 .risk-card {
-    flex: 1;
-    min-height: 220px;
-    padding: 20px 18px;
-    border-radius: 18px;
-    text-align: center;
-    transition: .15s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+  flex: 1;
+  min-height: 220px;
+  padding: 20px 18px;
+  border-radius: 18px;
+  text-align: center;
+  transition: 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .risk-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .risk-card-icon {
-    width: 52px;
-    height: 52px;
+  width: 52px;
+  height: 52px;
 }
 
-.card-red { background: #ffe6e6; }
-.card-yellow { background: #fff7e6; }
-.card-green { background: #ecffec !important; } /* 연두색 */
+.card-red {
+  background: #ffe6e6;
+}
+.card-yellow {
+  background: #fff7e6;
+}
+.card-green {
+  background: #ecffec !important;
+} /* 연두색 */
 
 /* card titles & numbers */
 .risk-card-title {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 6px;
 }
 
 .risk-card-count {
-    font-size: 26px;
-    font-weight: 700;
+  font-size: 26px;
+  font-weight: 700;
 }
 
-.risk-card-count.red { color: #ff4d4f; }
-.risk-card-count.yellow { color: #faad14; }
-.risk-card-count.green { color: #52c41a; }
+.risk-card-count.red {
+  color: #ff4d4f;
+}
+.risk-card-count.yellow {
+  color: #faad14;
+}
+.risk-card-count.green {
+  color: #52c41a;
+}
 
 /* animation */
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.96); }
-    to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

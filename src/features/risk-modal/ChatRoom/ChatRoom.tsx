@@ -36,13 +36,19 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
           <h4 className="feedback-title">댓글</h4>
           <span className="feedback-average">평균 {displayRatingLabel} / 5.0</span>
         </div>
-        <button className="feedback-close-btn" onClick={onClose} aria-label="위험도 보기로 돌아가기">
+        <button
+          className="feedback-close-btn"
+          onClick={onClose}
+          aria-label="위험도 보기로 돌아가기"
+        >
           <CloseOutlined />
         </button>
       </div>
 
       <div className="feedback-list">
-        {feedbacks.length === 0 && <div className="feedback-empty">아직 작성된 댓글이 없습니다.</div>}
+        {feedbacks.length === 0 && (
+          <div className="feedback-empty">아직 작성된 댓글이 없습니다.</div>
+        )}
         {feedbacks.map((item) => (
           <div key={item.id} className="feedback-item">
             <div className="feedback-item-header">

@@ -6,5 +6,7 @@ export interface SecurityLightResponse {
   LONGITUDE: number | string;
 }
 
+export const syncLightData = (address: string) =>
+  apiRequest('/api/security-lights/sync', { address });
 export const fetchSecurityLights = (address: string) =>
   apiRequest<SecurityLightResponse[]>('/api/security-lights', { address });

@@ -157,7 +157,9 @@ export const parseCoordinatesToBoundary = (
 
     const isMultiPolygon = Array.isArray(multiCandidate) && typeof multiCandidate?.[0] === 'number';
     const isPolygon =
-      !isMultiPolygon && Array.isArray(polygonCandidate) && typeof polygonCandidate?.[0] === 'number';
+      !isMultiPolygon &&
+      Array.isArray(polygonCandidate) &&
+      typeof polygonCandidate?.[0] === 'number';
 
     const geometry: GeoJSONGeometry | null = isMultiPolygon
       ? { type: 'MultiPolygon', coordinates: coordinates as number[][][][] }

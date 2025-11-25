@@ -22,11 +22,7 @@ export const CHILD_SIZE = 48;
 export const GAP = 0;
 export const ICON_DEFAULT_COLOR = '#595959';
 
-export const MapButtons: React.FC<MapButtonsProps> = ({
-  active,
-  setActive,
-  onOpenRiskModal,
-}) => {
+export const MapButtons: React.FC<MapButtonsProps> = ({ active, setActive, onOpenRiskModal }) => {
   const toggle = (key: 'cctv' | 'light' | 'police') => {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -111,11 +107,11 @@ export const MapButtons: React.FC<MapButtonsProps> = ({
           <img
             src={riskMarker}
             alt="위험점수"
-            style={{ 
-              width: 30, 
-              height: 30, 
-              transform: 'translateX(-5px)',   // ★ PNG 오프셋 보정 핵심!
-              display: 'block'
+            style={{
+              width: 30,
+              height: 30,
+              transform: 'translateX(-5px)', // ★ PNG 오프셋 보정 핵심!
+              display: 'block',
             }}
           />
         }
@@ -124,9 +120,9 @@ export const MapButtons: React.FC<MapButtonsProps> = ({
           height: CHILD_SIZE,
           marginTop: GAP,
           backgroundColor: '#ffe6e6',
-          display: 'flex',            // ★ 중앙정렬 핵심
-          alignItems: 'center',       // ★ 수직 중앙
-          justifyContent: 'center',   // ★ 수평 중앙
+          display: 'flex', // ★ 중앙정렬 핵심
+          alignItems: 'center', // ★ 수직 중앙
+          justifyContent: 'center', // ★ 수평 중앙
           padding: 0, // 연한 빨간색 배경
         }}
         onClick={() => {
