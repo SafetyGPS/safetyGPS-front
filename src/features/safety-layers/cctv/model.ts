@@ -31,10 +31,10 @@ export const useCctvLayer = ({
 
     const load = async () => {
       try {
-        const response = await fetchCctvLocations(regionQuery);
+        let response = await fetchCctvLocations(regionQuery);
         if (response.length === 0) {
           syncCctvData(regionQuery);
-          const response = await fetchCctvLocations(regionQuery);
+          response = await fetchCctvLocations(regionQuery);
         }
         if (cancelled) return;
 
