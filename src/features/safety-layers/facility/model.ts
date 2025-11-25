@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { MapMarkerData } from '../../../entities/map-layer';
 import { buildMarker } from '../../../shared/lib/mapMarkers';
-import { fetchFacilities } from './api';
+import { fetchFacilities, syncFacilityData } from './api';
 
 export interface UseFacilityLayerOptions {
   active: boolean;
@@ -36,6 +36,10 @@ export const useFacilityLayer = ({
     const load = async () => {
       try {
         const response = await fetchFacilities(sigunNm, gu, dong);
+        if (response.length === 0) {
+          syncFacilityData(sigunNm, gu, dong);
+          const response = await fetchFacilities(sigunNm, gu, dong);
+        }
         if (cancelled) return;
 
         const items = response

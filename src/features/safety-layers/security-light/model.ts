@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { MapMarkerData } from '../../../entities/map-layer';
 import { buildMarker } from '../../../shared/lib/mapMarkers';
+import { syncLightData } from './api';
 import { fetchSecurityLights } from './api';
 
 export interface UseSecurityLightLayerOptions {
@@ -32,6 +33,10 @@ export const useSecurityLightLayer = ({
     const load = async () => {
       try {
         const response = await fetchSecurityLights(address);
+        if (response.length === 0) {
+          syncLightData(address);
+          const response = await fetchSecurityLights(address);
+        }
         if (cancelled) return;
 
         const items = response

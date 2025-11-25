@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { MapMarkerData } from '../../../entities/map-layer';
 import { buildMarker } from '../../../shared/lib/mapMarkers';
+import { syncCctvData } from './api';
 import { fetchCctvLocations } from './api';
 
 export interface UseCctvLayerOptions {
@@ -32,6 +33,10 @@ export const useCctvLayer = ({
     const load = async () => {
       try {
         const response = await fetchCctvLocations(regionQuery);
+        if (response.length === 0) {
+          syncCctvData(regionQuery);
+          const response = await fetchCctvLocations(regionQuery);
+        }
         if (cancelled) return;
 
         const items = response
