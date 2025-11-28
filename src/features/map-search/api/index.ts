@@ -4,7 +4,7 @@ import { parseCoordinatesToBoundary, parseFeatureToBoundary } from '../lib';
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
 
 /**
- * V-World Search API로 경기도 내 동/읍/면 검색
+ * V-World Search API로 수원시 내 동/읍/면 검색
  */
 export const searchDong = async (query: string, apiKey: string): Promise<DongSearchResult[]> => {
   const encodedQuery = encodeURIComponent(query);
@@ -44,7 +44,7 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     const title = sanitizeAddressText(item.title || '');
     if (!title) return;
 
-    if (!title.includes('경기도')) return;
+    if (!title.includes('수원시')) return;
 
     const titleParts = title.split(' ');
     const dongName = titleParts[titleParts.length - 1];

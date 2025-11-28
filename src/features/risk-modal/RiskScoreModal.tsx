@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CloseOutlined, InfoCircleOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
 import './RiskScoreModal.css';
 import commentIcon from '../../assets/icons/comment.png';
@@ -17,6 +17,10 @@ export interface RiskScoreModalProps {
   cctvCount: number;
   lightCount: number;
   policeCount: number;
+  sigunNm?: string;
+  gu?: string;
+  dong?: string;
+  address?: string;
 }
 
 export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
@@ -27,6 +31,10 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
   cctvCount,
   lightCount,
   policeCount,
+  sigunNm,
+  gu,
+  dong,
+  address,
 }) => {
   const {
     feedbacks,
@@ -34,14 +42,15 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
     feedbackComment,
     averageRating,
     showChat,
+    isLoading,
+    isSubmitting,
+    error,
     setFeedbackRating,
     setFeedbackComment,
     submitFeedback,
     openChat,
     closeChat,
-  } = useChatRoom();
-
-  const [hoverRating, setHoverRating] = useState(0);
+  } = useChatRoom({ sigunNm, gu, dong, address });
 
   if (!isOpen) return null;
 
@@ -52,13 +61,13 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
   };
 
   const getDescription = () => {
-    if (score >= 80) return '이 동네는 안전 지수가 높아요. 안심하고 이동하세요.';
-    if (score >= 60) return '주의 구간이 일부 있습니다. 밝은 길 위주로 이동하세요.';
+    if (score >= 80) return '안전한 편이에요. 기본 주의만 하며 이동해 주세요.';
+    if (score >= 60) return '주의 구간이 있어요. 밝은 곳을 위주로 이동해 주세요.';
     return '위험 구간이 많은 편이에요. 가능하면 대로변으로 이동하세요.';
   };
 
   const displayRatingLabel = feedbacks.length ? averageRating.toFixed(1) : '0.0';
-  const displayRating = hoverRating || Math.round(averageRating);
+  const displayRating = Math.round(averageRating);
 
   return (
     <div className="risk-modal-overlay" onClick={onClose}>
@@ -78,6 +87,9 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
             feedbackRating={feedbackRating}
             feedbackComment={feedbackComment}
             averageRating={averageRating}
+            isLoading={isLoading}
+            isSubmitting={isSubmitting}
+            error={error}
             onChangeRating={setFeedbackRating}
             onChangeComment={setFeedbackComment}
             onSubmit={submitFeedback}
@@ -87,7 +99,7 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
           <>
             <div className="risk-score-section">
               <div className="risk-score-left">
-                <img src={warningIcon} className="warning-icon-img" alt="위험도" />
+                <img src={warningIcon} className="warning-icon-img" alt="위험 경고" />
               </div>
 
               <div className="risk-score-main">
@@ -99,7 +111,7 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
                 <div className="risk-info-tooltip">
                   <InfoCircleOutlined className="risk-info-icon" />
                   <div className="risk-info-hover">
-                    CCTV, 가로등, 치안센터 지표를 가중해 계산한 위험도 점수입니다.
+                    CCTV, 가로등, 치안센터 지표를 가중해 계산한 안전 점수입니다.
                   </div>
                 </div>
               </div>
@@ -127,15 +139,11 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
                       <StarFilled
                         key={star}
                         className="risk-star filled"
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
                       />
                     ) : (
                       <StarOutlined
                         key={star}
                         className="risk-star"
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
                       />
                     ),
                   )}
@@ -144,7 +152,7 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
               </div>
 
               <button className="risk-feedback-btn" onClick={openChat}>
-                <img src={commentIcon} className="comment-icon" alt="댓글" />
+                <img src={commentIcon} className="comment-icon" alt="채팅" />
                 소통하기
               </button>
             </div>

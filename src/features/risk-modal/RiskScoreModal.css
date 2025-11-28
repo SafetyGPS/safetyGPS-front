@@ -172,7 +172,8 @@
 
 .risk-star {
   font-size: 24px;
-  cursor: pointer;
+  cursor: default;
+  pointer-events: none;
   color: #aaa;
 }
 
