@@ -1,4 +1,9 @@
 export type QueryParams = Record<string, string | undefined>;
+export interface ApiRequestOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  params?: QueryParams;
+  body?: unknown;
+}
 
 const sanitizeBaseUrl = (value?: string) => (value ? value.replace(/\/$/, '') : '');
 
@@ -26,6 +31,32 @@ export const apiRequest = async <T>(path: string, params?: QueryParams): Promise
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
     throw new Error(errorText || `Request failed with status ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+};
+
+export const apiRequestJson = async <T>(
+  path: string,
+  options: ApiRequestOptions,
+): Promise<T> => {
+  const { method = 'GET', params, body } = options || {};
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const query = buildQueryString(params);
+
+  const response = await fetch(`${API_BASE_URL}${normalizedPath}${query}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(errorText || `Request failed with status ${response.status}`);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json() as Promise<T>;
