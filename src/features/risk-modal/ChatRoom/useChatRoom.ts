@@ -113,8 +113,8 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
     }
   };
 
-  const openChat = () => setShowChat(true);
-  const closeChat = () => setShowChat(false);
+  const openChat = useCallback(() => setShowChat(true), []);
+  const closeChat = useCallback(() => setShowChat(false), []);
 
   return {
     feedbacks,

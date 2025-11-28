@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { CloseOutlined, InfoCircleOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
 import './RiskScoreModal.css';
 import commentIcon from '../../assets/icons/comment.png';
@@ -52,6 +52,17 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
     closeChat,
   } = useChatRoom({ sigunNm, gu, dong, address });
 
+  useEffect(() => {
+    if (!isOpen) {
+      closeChat();
+    }
+  }, [isOpen, closeChat]);
+
+  const handleClose = useCallback(() => {
+    closeChat();
+    onClose();
+  }, [closeChat, onClose]);
+
   if (!isOpen) return null;
 
   const getScoreColor = () => {
@@ -70,12 +81,12 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
   const displayRating = Math.round(averageRating);
 
   return (
-    <div className="risk-modal-overlay" onClick={onClose}>
+    <div className="risk-modal-overlay" onClick={handleClose}>
       <div className="risk-modal-container" onClick={(event) => event.stopPropagation()}>
         <div className="risk-modal-header">
           <h2 className="risk-modal-title">{dongName}</h2>
           <div className="header-actions">
-            <button className="risk-close-btn" onClick={onClose} aria-label="닫기">
+            <button className="risk-close-btn" onClick={handleClose} aria-label="닫기">
               <CloseOutlined />
             </button>
           </div>
