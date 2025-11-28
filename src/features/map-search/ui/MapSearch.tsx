@@ -49,7 +49,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       const searchResults = await searchDong(query, vworldApiKey);
 
       if (!searchResults.length) {
-        messageApi.warning('수원시 검색 결과가 없습니다. 수원시 내 동 이름으로 검색해 주세요.');
+        messageApi.warning('검색 결과가 없습니다. 경기도 내 읍/면/동 이름으로 검색해 주세요.');
       }
 
       setResults(searchResults);
@@ -132,7 +132,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       {contextHolder}
       <Card
         size="small"
-        title="동 검색 (수원시)"
+        title="동/읍/면 검색 (경기도)"
         extra={
           <Space size={8}>
             <Button
@@ -148,7 +148,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       >
         <Space.Compact style={{ width: '100%' }}>
           <Input
-            placeholder="수원시 동을 검색하세요 (예: 조원동)"
+            placeholder="경기도 동/읍/면을 검색하세요 (예: 수원시 연무동, 의정부시 호원동)"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onPressEnter={handleSearch}
@@ -168,7 +168,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
         <div style={{ marginTop: 12, maxHeight: 260, overflowY: 'auto' }}>
           {!results.length && !loading ? (
             <Empty
-              description="검색 결과가 없습니다 (현재 수원시만 검색 가능합니다)"
+              description="검색 결과가 없습니다 (현재 경기도만 검색 가능합니다)"
               image={Empty.PRESENTED_IMAGE_SIMPLE}
             />
           ) : (
