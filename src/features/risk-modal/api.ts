@@ -46,12 +46,16 @@ export interface CreateReviewRequest {
   address: string;
 }
 
-export const fetchReviews = (params: ReviewQuery) =>
-  apiRequest<Review[]>('/api/reviews', {
-    sigunNm: params.sigunNm,
-    gu: params.gu,
-    dong: params.dong,
-  });
+export const fetchReviews = (params: ReviewQuery, signal?: AbortSignal) =>
+  apiRequest<Review[]>(
+    '/api/reviews',
+    {
+      sigunNm: params.sigunNm,
+      gu: params.gu,
+      dong: params.dong,
+    },
+    signal,
+  );
 
 export const createReview = (payload: CreateReviewRequest) =>
   apiRequestJson<Review>('/api/reviews', {

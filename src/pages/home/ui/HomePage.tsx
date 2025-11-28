@@ -45,6 +45,7 @@ export const HomePage: React.FC = () => {
   const prevActiveRef = useRef(active);
   const warnedLayersRef = useRef<Set<LayerKey>>(new Set());
   const selectedDongRef = useRef<DongBoundary | null>(null);
+  const safetyScoreRequestIdRef = useRef(0);
 
   const addressParts = useMemo(
     () =>
@@ -100,7 +101,7 @@ export const HomePage: React.FC = () => {
     (Object.keys(active) as LayerKey[]).forEach((key) => {
       if (active[key] && !prevActiveRef.current[key] && !selectedDong) {
         if (!warnedLayersRef.current.has(key)) {
-          messageApi.warning('먼저 검색에서 동을 선택해 주세요.');
+          messageApi.warning('Please select an area before enabling layers.');
           warnedLayersRef.current.add(key);
         }
       }
@@ -111,16 +112,13 @@ export const HomePage: React.FC = () => {
 
   const handleOpenRiskModal = useCallback(async () => {
     if (!selectedDong) {
-      messageApi.warning('먼저 지역을 검색해 주세요.');
+      messageApi.warning('Please select a region first.');
       return;
     }
 
     const requestDongId = selectedDong.id;
-
-    if (isSafetyScoreLoading) {
-      setIsRiskModalOpen(true);
-      return;
-    }
+    const requestId = safetyScoreRequestIdRef.current + 1;
+    safetyScoreRequestIdRef.current = requestId;
 
     const addressQuery = (
       addressParts?.regionQuery ||
@@ -130,7 +128,7 @@ export const HomePage: React.FC = () => {
     ).trim();
 
     if (!addressQuery) {
-      messageApi.warning('주소 정보를 찾지 못했습니다. 다시 선택해 주세요.');
+      messageApi.warning('Address info not found. Please select again.');
       return;
     }
 
@@ -142,9 +140,12 @@ export const HomePage: React.FC = () => {
     messageApi.open({
       key: loadingKey,
       type: 'loading',
-      content: `${addressQuery} 안전지수를 불러오는 중입니다...`,
+      content: `${addressQuery} Loading safety score...`,
       duration: 0,
     });
+
+    const isOutdatedRequest = () => safetyScoreRequestIdRef.current !== requestId;
+    const isMismatchedDong = () => selectedDongRef.current?.id !== requestDongId;
 
     try {
       const syncTasks: Promise<unknown>[] = [];
@@ -152,28 +153,32 @@ export const HomePage: React.FC = () => {
       const address = addressParts?.address || addressParts?.regionQuery;
       const { sigunNm, gu, dong } = addressParts ?? {};
       const hasFacilityQuery = Boolean(sigunNm);
+      let hadSyncFailure = false;
 
       if (regionQuery) {
         syncTasks.push(
-          syncCctvData(regionQuery).catch((error) =>
-            console.warn('Failed to sync CCTV before safety score', error),
-          ),
+          syncCctvData(regionQuery).catch((error) => {
+            hadSyncFailure = true;
+            console.warn('Failed to sync CCTV before safety score', error);
+          }),
         );
       }
 
       if (address) {
         syncTasks.push(
-          syncLightData(address).catch((error) =>
-            console.warn('Failed to sync security lights before safety score', error),
-          ),
+          syncLightData(address).catch((error) => {
+            hadSyncFailure = true;
+            console.warn('Failed to sync security lights before safety score', error);
+          }),
         );
       }
 
       if (hasFacilityQuery) {
         syncTasks.push(
-          syncFacilityData(sigunNm, gu, dong).catch((error) =>
-            console.warn('Failed to sync facilities before safety score', error),
-          ),
+          syncFacilityData(sigunNm, gu, dong).catch((error) => {
+            hadSyncFailure = true;
+            console.warn('Failed to sync facilities before safety score', error);
+          }),
         );
       }
 
@@ -181,7 +186,7 @@ export const HomePage: React.FC = () => {
         await Promise.all(syncTasks);
       }
 
-      if (selectedDongRef.current?.id !== requestDongId) {
+      if (isOutdatedRequest() || isMismatchedDong()) {
         return;
       }
 
@@ -194,7 +199,7 @@ export const HomePage: React.FC = () => {
           : Promise.resolve([]),
       ]);
 
-      if (selectedDongRef.current?.id !== requestDongId) {
+      if (isOutdatedRequest() || isMismatchedDong()) {
         return;
       }
 
@@ -204,24 +209,36 @@ export const HomePage: React.FC = () => {
         light: Array.isArray(lightList) ? lightList.length : 0,
         police: Array.isArray(facilityList) ? facilityList.length : 0,
       });
+
+      if (hadSyncFailure) {
+        messageApi.warning('Some data failed to sync and may be outdated.');
+      }
+
       messageApi.success({
         key: loadingKey,
-        content: '안전지수를 불러왔습니다.',
+        content: 'Loaded safety score.',
       });
     } catch (error) {
+      if (isOutdatedRequest() || isMismatchedDong()) {
+        return;
+      }
+
       const errorMessage =
-        error instanceof Error ? error.message : '안전지수를 불러오지 못했습니다.';
+        error instanceof Error ? error.message : 'Failed to load safety score.';
       messageApi.error({
         key: loadingKey,
-        content: `안전지수 조회 실패: ${errorMessage}`,
+        content: `Safety score fetch failed: ${errorMessage}`,
         duration: 3,
       });
     } finally {
-      setIsSafetyScoreLoading(false);
+      if (!isOutdatedRequest()) {
+        setIsSafetyScoreLoading(false);
+      }
     }
-  }, [addressParts, isSafetyScoreLoading, messageApi, selectedDong]);
+  }, [addressParts, messageApi, selectedDong]);
 
   const modalScore = safetyScore ? Math.round(safetyScore.totalScore) : 0;
+  // Prefer the larger count in case the server aggregate lags behind locally synced data.
   const modalCctvCount = Math.max(safetyScore?.cctvCount ?? 0, resourceCounts.cctv);
   const modalLightCount = Math.max(
     safetyScore?.securityLightCount ?? 0,
@@ -264,7 +281,7 @@ export const HomePage: React.FC = () => {
       <RiskScoreModal
         isOpen={isRiskModalOpen}
         onClose={() => setIsRiskModalOpen(false)}
-        dongName={selectedDong?.name ?? '미선택'}
+        dongName={selectedDong?.name ?? 'Unknown'}
         score={modalScore}
         cctvCount={modalCctvCount}
         lightCount={modalLightCount}

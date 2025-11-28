@@ -26,7 +26,7 @@ const formatDate = (value: string | Date) => {
 
 const mapReviewToFeedback = (review: Review): Feedback => ({
   id: review.id,
-  author: review.name || '익명',
+  author: review.name || 'anonymous',
   comment: review.content,
   rating: review.rating,
   createdAt: formatDate(review.createdAt),
@@ -55,29 +55,36 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
     return sum / feedbacks.length;
   }, [feedbacks]);
 
-  const loadFeedbacks = useCallback(async () => {
-    if (!locationKey) {
-      setFeedbacks([]);
-      return;
-    }
+  const loadFeedbacks = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!locationKey) {
+        setFeedbacks([]);
+        return;
+      }
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const reviews = await fetchReviews({ sigunNm, gu, dong });
-      setFeedbacks(reviews.map(mapReviewToFeedback));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '리뷰를 불러오지 못했습니다.';
-      setError(message);
-      setFeedbacks([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dong, gu, locationKey, sigunNm]);
+      try {
+        const reviews = await fetchReviews({ sigunNm, gu, dong }, signal);
+        if (signal?.aborted) return;
+        setFeedbacks(reviews.map(mapReviewToFeedback));
+      } catch (err) {
+        if (signal?.aborted) return;
+        const message = err instanceof Error ? err.message : 'Failed to load reviews.';
+        setError(message);
+        setFeedbacks([]);
+      } finally {
+        if (!signal?.aborted) setIsLoading(false);
+      }
+    },
+    [locationKey, sigunNm, gu, dong],
+  );
 
   useEffect(() => {
-    void loadFeedbacks();
+    const controller = new AbortController();
+    void loadFeedbacks(controller.signal);
+    return () => controller.abort();
   }, [loadFeedbacks]);
 
   const submitFeedback = async () => {
@@ -86,12 +93,12 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
 
     const resolvedAddress = address?.trim() || [sigunNm, gu, dong].filter(Boolean).join(' ');
     if (!resolvedAddress) {
-      setError('리뷰를 등록할 주소 정보가 없습니다.');
+      setError('Address is required to submit a review.');
       return;
     }
 
     const payload: CreateReviewRequest = {
-      name: '익명',
+      name: 'anonymous',
       content: trimmed,
       rating: feedbackRating,
       address: resolvedAddress,
@@ -102,11 +109,15 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
 
     try {
       const created = await createReview(payload);
+      if (!created) {
+        setError('No response returned for review submission.');
+        return;
+      }
       setFeedbacks((prev) => [mapReviewToFeedback(created), ...prev]);
       setFeedbackComment('');
       setFeedbackRating(0);
     } catch (err) {
-      const message = err instanceof Error ? err.message : '리뷰를 저장하지 못했습니다.';
+      const message = err instanceof Error ? err.message : 'Failed to submit review.';
       setError(message);
     } finally {
       setIsSubmitting(false);
