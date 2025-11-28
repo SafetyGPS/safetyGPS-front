@@ -4,16 +4,19 @@ import { KakaoMap } from '../../../features/kakao-map';
 import { MapButtons } from '../../../features/map-buttons';
 import { MapSearch } from '../../../features/map-search';
 import type { DongBoundary } from '../../../features/map-search/types';
-import { RiskScoreModal } from '../../../features/risk-modal/RiskScoreModal';
 import { fetchSafetyScore, type SafetyScoreResponse } from '../../../features/risk-modal/api';
-import { fetchCctvLocations, syncCctvData } from '../../../features/safety-layers/cctv/api';
-import { fetchFacilities, syncFacilityData } from '../../../features/safety-layers/facility/api';
-import { fetchSecurityLights, syncLightData } from '../../../features/safety-layers/security-light/api';
+import { RiskScoreModal } from '../../../features/risk-modal/RiskScoreModal';
 import {
   useCctvLayer,
   useFacilityLayer,
   useSecurityLightLayer,
 } from '../../../features/safety-layers';
+import { fetchCctvLocations, syncCctvData } from '../../../features/safety-layers/cctv/api';
+import { fetchFacilities, syncFacilityData } from '../../../features/safety-layers/facility/api';
+import {
+  fetchSecurityLights,
+  syncLightData,
+} from '../../../features/safety-layers/security-light/api';
 import { extractAddressParts } from '../../../shared/utils/address';
 import type { KakaoMaps } from '../../../types/kakao';
 
@@ -31,7 +34,7 @@ export const HomePage: React.FC = () => {
   const [selectedDong, setSelectedDong] = useState<DongBoundary | null>(null);
   const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
   const [safetyScore, setSafetyScore] = useState<SafetyScoreResponse | null>(null);
-  const [isSafetyScoreLoading, setIsSafetyScoreLoading] = useState(false);
+  const [, setIsSafetyScoreLoading] = useState(false);
   const [resourceCounts, setResourceCounts] = useState({
     cctv: 0,
     light: 0,
@@ -194,9 +197,7 @@ export const HomePage: React.FC = () => {
         fetchSafetyScore(addressQuery),
         regionQuery ? fetchCctvLocations(regionQuery).catch(() => []) : Promise.resolve([]),
         address ? fetchSecurityLights(address).catch(() => []) : Promise.resolve([]),
-        hasFacilityQuery
-          ? fetchFacilities(sigunNm, gu, dong).catch(() => [])
-          : Promise.resolve([]),
+        hasFacilityQuery ? fetchFacilities(sigunNm, gu, dong).catch(() => []) : Promise.resolve([]),
       ]);
 
       if (isOutdatedRequest() || isMismatchedDong()) {
@@ -223,8 +224,7 @@ export const HomePage: React.FC = () => {
         return;
       }
 
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to load safety score.';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load safety score.';
       messageApi.error({
         key: loadingKey,
         content: `Safety score fetch failed: ${errorMessage}`,
@@ -240,10 +240,7 @@ export const HomePage: React.FC = () => {
   const modalScore = safetyScore ? Math.round(safetyScore.totalScore) : 0;
   // Prefer the larger count in case the server aggregate lags behind locally synced data.
   const modalCctvCount = Math.max(safetyScore?.cctvCount ?? 0, resourceCounts.cctv);
-  const modalLightCount = Math.max(
-    safetyScore?.securityLightCount ?? 0,
-    resourceCounts.light,
-  );
+  const modalLightCount = Math.max(safetyScore?.securityLightCount ?? 0, resourceCounts.light);
   const modalPoliceCount = Math.max(safetyScore?.facilityCount ?? 0, resourceCounts.police);
   const modalSigunNm = safetyScore?.sigunNm || addressParts?.sigunNm;
   const modalGu = safetyScore?.gu || addressParts?.gu;

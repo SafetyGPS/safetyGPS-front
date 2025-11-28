@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { CloseOutlined, InfoCircleOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
 import './RiskScoreModal.css';
 import commentIcon from '../../assets/icons/comment.png';
@@ -147,15 +147,9 @@ export const RiskScoreModal: React.FC<RiskScoreModalProps> = ({
                 <div className="risk-stars">
                   {[1, 2, 3, 4, 5].map((star) =>
                     star <= displayRating ? (
-                      <StarFilled
-                        key={star}
-                        className="risk-star filled"
-                      />
+                      <StarFilled key={star} className="risk-star filled" />
                     ) : (
-                      <StarOutlined
-                        key={star}
-                        className="risk-star"
-                      />
+                      <StarOutlined key={star} className="risk-star" />
                     ),
                   )}
                 </div>
