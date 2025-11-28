@@ -45,10 +45,13 @@ export const apiRequestJson = async <T = void>(
   path: string,
   options: ApiRequestOptions,
 ): Promise<T | undefined> => {
-  const { method = 'GET', params, body, signal } = options || {};
+  const { method = 'GET', params, body, signal } = options;
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const query = buildQueryString(params);
-  const headers = body !== undefined ? { 'Content-Type': 'application/json' } : undefined;
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   const response = await fetch(`${API_BASE_URL}${normalizedPath}${query}`, {
     method,

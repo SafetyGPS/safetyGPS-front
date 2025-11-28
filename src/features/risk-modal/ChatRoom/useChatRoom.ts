@@ -62,11 +62,18 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
         return;
       }
 
+      const [parsedSigunNm, parsedGu, parsedDong] = locationKey.split('|');
+      const reviewParams = {
+        sigunNm: parsedSigunNm || undefined,
+        gu: parsedGu || undefined,
+        dong: parsedDong || undefined,
+      };
+
       setIsLoading(true);
       setError(null);
 
       try {
-        const reviews = await fetchReviews({ sigunNm, gu, dong }, signal);
+        const reviews = await fetchReviews(reviewParams, signal);
         if (signal?.aborted) return;
         setFeedbacks(reviews.map(mapReviewToFeedback));
       } catch (err) {
@@ -78,7 +85,7 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
         if (!signal?.aborted) setIsLoading(false);
       }
     },
-    [locationKey, sigunNm, gu, dong],
+    [locationKey],
   );
 
   useEffect(() => {
@@ -87,7 +94,7 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
     return () => controller.abort();
   }, [loadFeedbacks]);
 
-  const submitFeedback = async () => {
+  const submitFeedback = useCallback(async () => {
     const trimmed = feedbackComment.trim();
     if (!trimmed || feedbackRating === 0) return;
 
@@ -122,7 +129,7 @@ export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) =
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [address, dong, feedbackComment, feedbackRating, gu, sigunNm]);
 
   const openChat = useCallback(() => setShowChat(true), []);
   const closeChat = useCallback(() => setShowChat(false), []);

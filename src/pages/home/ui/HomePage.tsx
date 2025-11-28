@@ -104,7 +104,7 @@ export const HomePage: React.FC = () => {
     (Object.keys(active) as LayerKey[]).forEach((key) => {
       if (active[key] && !prevActiveRef.current[key] && !selectedDong) {
         if (!warnedLayersRef.current.has(key)) {
-          messageApi.warning('Please select an area before enabling layers.');
+          messageApi.warning('레이어를 활성화하려면 먼저 지역을 선택해 주세요.');
           warnedLayersRef.current.add(key);
         }
       }
@@ -115,7 +115,7 @@ export const HomePage: React.FC = () => {
 
   const handleOpenRiskModal = useCallback(async () => {
     if (!selectedDong) {
-      messageApi.warning('Please select a region first.');
+      messageApi.warning('먼저 지역을 검색해 주세요.');
       return;
     }
 
@@ -131,7 +131,7 @@ export const HomePage: React.FC = () => {
     ).trim();
 
     if (!addressQuery) {
-      messageApi.warning('Address info not found. Please select again.');
+      messageApi.warning('주소 정보를 찾을 수 없습니다. 다시 선택해 주세요.');
       return;
     }
 
@@ -143,7 +143,7 @@ export const HomePage: React.FC = () => {
     messageApi.open({
       key: loadingKey,
       type: 'loading',
-      content: `${addressQuery} Loading safety score...`,
+      content: `${addressQuery} 안전지수를 불러오는 중입니다...`,
       duration: 0,
     });
 
