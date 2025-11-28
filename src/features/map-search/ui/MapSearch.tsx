@@ -1,6 +1,6 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { AimOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Empty, Input, List, message, Space, Tag, Typography } from 'antd';
+import { Button, Card, Empty, Input, List, message, Space, Typography } from 'antd';
 import type { KakaoMaps } from '../../../types/kakao';
 import { fetchGeometryBoundary, fetchVWorldBoundary, searchDong } from '../api';
 import { OUTER_WRAPPER_STYLE } from '../constants';
@@ -49,7 +49,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       const searchResults = await searchDong(query, vworldApiKey);
 
       if (!searchResults.length) {
-        messageApi.warning('경기 지역 검색 결과가 없습니다. 동 이름으로 검색해 주세요.');
+        messageApi.warning('수원시 검색 결과가 없습니다. 수원시 내 동 이름으로 검색해 주세요.');
       }
 
       setResults(searchResults);
@@ -132,12 +132,9 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       {contextHolder}
       <Card
         size="small"
-        title="동 검색"
+        title="동 검색 (수원시)"
         extra={
           <Space size={8}>
-            <Tag color={disabled ? 'default' : 'cyan'}>
-              {disabled ? '로딩 불가: 키 미설정' : '키 설정됨'}
-            </Tag>
             <Button
               type="text"
               size="small"
@@ -151,7 +148,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       >
         <Space.Compact style={{ width: '100%' }}>
           <Input
-            placeholder="경기도 동을 검색하세요 (예: 조원동)"
+            placeholder="수원시 동을 검색하세요 (예: 조원동)"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onPressEnter={handleSearch}
@@ -170,7 +167,10 @@ export const MapSearch: React.FC<MapSearchProps> = ({
         </Space.Compact>
         <div style={{ marginTop: 12, maxHeight: 260, overflowY: 'auto' }}>
           {!results.length && !loading ? (
-            <Empty description="검색 결과가 없습니다" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <Empty
+              description="검색 결과가 없습니다 (현재 수원시만 검색 가능합니다)"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
           ) : (
             <List
               size="small"

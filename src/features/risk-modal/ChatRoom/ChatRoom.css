@@ -102,6 +102,15 @@
   padding: 10px 0;
 }
 
+.feedback-error {
+  font-size: 13px;
+  color: #d4380d;
+  background: #fff2e8;
+  border: 1px solid #ffd8bf;
+  border-radius: 10px;
+  padding: 10px;
+}
+
 .feedback-divider {
   height: 1px;
   background: #ededed;

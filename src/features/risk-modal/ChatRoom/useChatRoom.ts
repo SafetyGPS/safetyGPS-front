@@ -1,40 +1,53 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createReview, fetchReviews, type CreateReviewRequest, type Review } from '../api';
 
 export interface Feedback {
-  id: string;
+  id: number;
   author: string;
   comment: string;
   rating: number;
   createdAt: string;
 }
 
-const formatDate = (date: Date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+export interface UseChatRoomParams {
+  sigunNm?: string;
+  gu?: string;
+  dong?: string;
+  address?: string;
+}
+
+const formatDate = (value: string | Date) => {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
     date.getDate(),
   ).padStart(2, '0')}`;
+};
 
-const INITIAL_FEEDBACKS: Feedback[] = [
-  {
-    id: '1',
-    author: '익명',
-    comment: '초저녁에는 밝고 사람도 많아요. 골목길만 조심하면 될 듯!',
-    rating: 4,
-    createdAt: '2024-11-20',
-  },
-  {
-    id: '2',
-    author: '익명',
-    comment: '조용해서 좋은데 늦은 밤엔 순찰이 조금 더 있으면 좋겠어요.',
-    rating: 3,
-    createdAt: '2024-11-21',
-  },
-];
+const mapReviewToFeedback = (review: Review): Feedback => ({
+  id: review.id,
+  author: review.name || 'anonymous',
+  comment: review.content,
+  rating: review.rating,
+  createdAt: formatDate(review.createdAt),
+});
 
-export const useChatRoom = () => {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>(INITIAL_FEEDBACKS);
+export const useChatRoom = ({ sigunNm, gu, dong, address }: UseChatRoomParams) => {
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const locationKey = useMemo(
+    () =>
+      [sigunNm, gu, dong]
+        .filter((part) => typeof part === 'string' && part.trim().length > 0)
+        .join('|'),
+    [sigunNm, gu, dong],
+  );
 
   const averageRating = useMemo(() => {
     if (!feedbacks.length) return 0;
@@ -42,25 +55,84 @@ export const useChatRoom = () => {
     return sum / feedbacks.length;
   }, [feedbacks]);
 
-  const submitFeedback = () => {
+  const loadFeedbacks = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!locationKey) {
+        setFeedbacks([]);
+        return;
+      }
+
+      const [parsedSigunNm, parsedGu, parsedDong] = locationKey.split('|');
+      const reviewParams = {
+        sigunNm: parsedSigunNm || undefined,
+        gu: parsedGu || undefined,
+        dong: parsedDong || undefined,
+      };
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const reviews = await fetchReviews(reviewParams, signal);
+        if (signal?.aborted) return;
+        setFeedbacks(reviews.map(mapReviewToFeedback));
+      } catch (err) {
+        if (signal?.aborted) return;
+        const message = err instanceof Error ? err.message : 'Failed to load reviews.';
+        setError(message);
+        setFeedbacks([]);
+      } finally {
+        if (!signal?.aborted) setIsLoading(false);
+      }
+    },
+    [locationKey],
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void loadFeedbacks(controller.signal);
+    return () => controller.abort();
+  }, [loadFeedbacks]);
+
+  const submitFeedback = useCallback(async () => {
     const trimmed = feedbackComment.trim();
     if (!trimmed || feedbackRating === 0) return;
 
-    const newFeedback: Feedback = {
-      id: `${Date.now()}`,
-      author: '익명',
-      comment: trimmed,
+    const resolvedAddress = address?.trim() || [sigunNm, gu, dong].filter(Boolean).join(' ');
+    if (!resolvedAddress) {
+      setError('Address is required to submit a review.');
+      return;
+    }
+
+    const payload: CreateReviewRequest = {
+      name: 'anonymous',
+      content: trimmed,
       rating: feedbackRating,
-      createdAt: formatDate(new Date()),
+      address: resolvedAddress,
     };
 
-    setFeedbacks((prev) => [newFeedback, ...prev]);
-    setFeedbackComment('');
-    setFeedbackRating(0);
-  };
+    setIsSubmitting(true);
+    setError(null);
 
-  const openChat = () => setShowChat(true);
-  const closeChat = () => setShowChat(false);
+    try {
+      const created = await createReview(payload);
+      if (!created) {
+        setError('No response returned for review submission.');
+        return;
+      }
+      setFeedbacks((prev) => [mapReviewToFeedback(created), ...prev]);
+      setFeedbackComment('');
+      setFeedbackRating(0);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to submit review.';
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [address, dong, feedbackComment, feedbackRating, gu, sigunNm]);
+
+  const openChat = useCallback(() => setShowChat(true), []);
+  const closeChat = useCallback(() => setShowChat(false), []);
 
   return {
     feedbacks,
@@ -68,11 +140,15 @@ export const useChatRoom = () => {
     feedbackComment,
     averageRating,
     showChat,
+    isLoading,
+    isSubmitting,
+    error,
     setFeedbackRating,
     setFeedbackComment,
     submitFeedback,
     openChat,
     closeChat,
+    reload: loadFeedbacks,
   };
 };
 
