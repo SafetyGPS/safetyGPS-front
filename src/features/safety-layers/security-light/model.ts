@@ -47,7 +47,7 @@ export const useSecurityLightLayer = ({
       } catch (error) {
         console.error('Failed to load security lights', error);
         if (!cancelled) {
-          onError?.('보안등 정보를 불러오지 못했습니다.');
+          onError?.('\ubcf4\uc548\ub4f1 \uc815\ubcf4\ub97c \ubd88\ub7ec\uc624\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.');
         }
       }
     };
