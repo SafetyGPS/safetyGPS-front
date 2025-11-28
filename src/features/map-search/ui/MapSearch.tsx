@@ -132,7 +132,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       {contextHolder}
       <Card
         size="small"
-        title="동/읍/면 검색 (경기도)"
+        title="시/구/동 검색(경기도만 가능) "
         extra={
           <Space size={8}>
             <Button
@@ -148,7 +148,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({
       >
         <Space.Compact style={{ width: '100%' }}>
           <Input
-            placeholder="경기도 동/읍/면을 검색하세요 (예: 수원시 연무동, 의정부시 호원동)"
+            placeholder="경기도 시/구/동을 검색하세요 (예: 수원시 연무동, 의정부시 호원동)"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onPressEnter={handleSearch}
