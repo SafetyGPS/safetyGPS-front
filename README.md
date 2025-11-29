@@ -135,6 +135,16 @@ VITE_KAKAO_JS_KEY=your_kakao_js_key_here
 ```bash
 npm run dev
 ```
+#### GitHub Actions 워크플로우
+
+- `build.yml`: `main`, `develop` 브랜치 대상 push/PR에서 실행되며 Node 18 환경에서 `npm ci` 후 `npm run build`로 정적 빌드를 검증합니다. 지도 API 키는 GitHub Secrets(`VITE_VWORLD_API_KEY`, `VITE_KAKAO_JS_KEY`)로 주입합니다.
+- `lint.yml`: `main`, `develop` 브랜치에 대한 push/PR 시 `npm run lint`로 코드 스타일과 규칙을 확인합니다.
+- `test.yml`: `main`, `develop` 브랜치에 대한 push/PR 시 `npm test`(타입 체크)를 실행해 타입 안정성을 확인합니다.
+- `e2e.yml`: `main`, `develop` 브랜치에 대한 push/PR 시 `npm run test:e2e`로 스모크 E2E를 돌려 빌드된 번들이 기본 플로우에서 동작하는지 확인합니다.
+- `deploy.yml`: `main`, `develop` 브랜치의 push/PR에서 빌드를 수행하고 아티팩트를 업로드하며, `main`에 push될 때만 GitHub Pages로 자동 배포합니다(Secrets 기반 API 키 주입).
+
+모든 워크플로우는 공통으로 `actions/checkout@v4`, `actions/setup-node@v4`(`node-version: 18`, `cache: npm`)를 사용하며, 실패 시 해당 단계에서 바로 감지됩니다.
+
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=Typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
