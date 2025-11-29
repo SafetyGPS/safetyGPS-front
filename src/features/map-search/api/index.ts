@@ -3,8 +3,42 @@ import type { VWorldSearchItem } from '../../../types/vworld';
 import { parseCoordinatesToBoundary, parseFeatureToBoundary } from '../lib';
 import type { DongBoundary, DongSearchResult, LatLngLiteral } from '../types';
 
+const GYEONGGI_CITIES = [
+  '수원시',
+  '성남시',
+  '의정부시',
+  '안양시',
+  '부천시',
+  '광명시',
+  '평택시',
+  '동두천시',
+  '안산시',
+  '고양시',
+  '과천시',
+  '구리시',
+  '남양주시',
+  '오산시',
+  '시흥시',
+  '군포시',
+  '의왕시',
+  '하남시',
+  '용인시',
+  '파주시',
+  '이천시',
+  '안성시',
+  '김포시',
+  '화성시',
+  '광주시',
+  '양주시',
+  '포천시',
+  '여주시',
+  '연천군',
+  '가평군',
+  '양평군',
+];
+
 /**
- * V-World Search API로 수원시 내 동/읍/면 검색
+ * V-World Search API로 경기도 내 동/읍/면 검색
  */
 export const searchDong = async (query: string, apiKey: string): Promise<DongSearchResult[]> => {
   const encodedQuery = encodeURIComponent(query);
@@ -44,10 +78,32 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     const title = sanitizeAddressText(item.title || '');
     if (!title) return;
 
-    if (!title.includes('수원시')) return;
-
     const titleParts = title.split(' ');
+
+    // 경기도 여부 판단: "경기도"/"경기" 표기가 없더라도 시/군 이름으로 허용
+    const hasProvinceToken = title.includes('경기도') || title.startsWith('경기 ');
+    const cityToken =
+      titleParts.find((part) => part.endsWith('시') || part.endsWith('군')) ??
+      titleParts.find((part) => part.endsWith('시청') || part.endsWith('군청')); // 방어적 추가
+    const cityName = cityToken?.replace(/청$/, '') ?? '';
+    const isGyeonggi =
+      hasProvinceToken ||
+      (cityName ? GYEONGGI_CITIES.some((name) => cityName.startsWith(name)) : false);
+
+    if (!isGyeonggi) return;
+
     const dongName = titleParts[titleParts.length - 1];
+
+    const guToken = titleParts.find((part) => part.endsWith('\uad6c'));
+    const fullAddressParts = [
+      hasProvinceToken
+        ? titleParts.find((part) => part.includes('\uacbd\uae30')) || '\uacbd\uae30\ub3c4'
+        : '\uacbd\uae30\ub3c4',
+      cityName,
+      guToken,
+      dongName,
+    ].filter(Boolean);
+    const fullAddress = fullAddressParts.join(' ');
 
     // 동/면/읍 필터링
     if (
@@ -72,14 +128,14 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
 
     // 검색 쿼리 매칭 (토큰 기반)
     if (queryCities.length && queryDongs.length) {
-      // 시/군 + 동 검색 (예: "수원시 조원동")
+      // 시/군 + 동 검색 (예: "용인시 상현동")
       const hasCityMatch = queryCities.some((city) => titleCityNames.includes(city));
       const queryDongName = queryDongs[queryDongs.length - 1];
       if (!hasCityMatch || queryDongName !== itemDongName) {
         return;
       }
     } else if (queryCities.length) {
-      // 시/군만 검색 (예: "수원시")
+      // 시/군만 검색 (예: "고양시")
       const hasCityMatch = queryCities.some((city) => titleCityNames.includes(city));
       if (!hasCityMatch) {
         return;
@@ -105,7 +161,7 @@ export const searchDong = async (query: string, apiKey: string): Promise<DongSea
     results.push({
       id: item.id,
       name: dongName,
-      fullAddress: title,
+      fullAddress,
       center,
       bCode: item.id,
       geometryUrl: typeof item.geometry === 'string' ? item.geometry : undefined,
