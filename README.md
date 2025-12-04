@@ -39,7 +39,7 @@
 
 | 분야            | 기술                                          |
 | --------------- | --------------------------------------------- |
-| Frontend        | **React**, **TypeScript**, **Vanila-extract** |
+| Frontend        | **react**, **react-dom**, **vite**, **antd**  |
 | Package Manager | **npm**                                       |
 | Version Control | **GitHub**                                    |
 | 지도 API        | **카카오 지도 API**                           |
